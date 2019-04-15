@@ -2,75 +2,79 @@ const store = new Vuex.Store({
   state: {
     dice: [],
     scoreCard: [
-      {
+      { id : 1,
         field: "ettor",
         value: 0
       },
       {
+        id : 2,
         field: "tvår",
         value: 0
       },
-      {
+      { 
+        id : 3,
         field: "treor",
         value: 0
       },
       {
+        id : 4,
         field: "fyror",
         value: 0
       },
       {
+        id : 5,
         field: "femor",
         value: 0
       },
-      {
+      { id : 6,
         field: "sexor",
         value: 0
       },
-      {
+      { id : 7,
         field: "bonus",
         value: 0
       },
-      {
+      { id : 8,
         field: "summa",
         value: 0
       },
-      {
+      { id : 9,
         field: "par",
         value: 0
       },
-      {
+      { id : 10,
         field: "två-par",
         value: 0
       },
-      {
+      { id : 11,
         field: "tretal",
         value: 0
       },
-      {
+      { id : 12,
         field: "fyrtal",
         value: 0
       },
-      {
+      { id : 13,
         field: "liten stege",
         value: 0
       },
-      {
+      { id : 14,
         field: "stor stege",
         value: 0
       },
-      {
+      { id : 15,
         field: "kåk",
         value: 0
       },
-      {
+      { id : 16,
         field: "chans",
         value: 0
       },
-      {
+      { id : 17,
         field: "yatzy",
         value: 0
       },
-      {
+      { id : 18,
         field: "totalt",
         value: 0
       }
@@ -85,13 +89,16 @@ const store = new Vuex.Store({
 //Ska skriva ut varje fält i scorecardet
 const Item = {
   props: ["it"],
+  computed: {
+    classObject: function () {
+      return "rw " + "rw" + this.it.id;
+    }
+    },
   template: `
-          <tr>
-          <td>{{it.field}}</td>
-          <td>
-          {{it.value}}
-          </td>
-          </tr>
+         <div v-bind:class="classObject">
+          <div class="fi">{{it.field}}</div>
+          <div class="vl">{{it.value}}</div>
+          </div>
       `
 };
 // Skriver ut varje tärning i tärningsfältet, ska även hålla design för tärningarna
@@ -129,7 +136,7 @@ const DiceHolder = {
     }
   },
   template: `
-    <div class="dice-holder>
+    <div class="dice-holder">
             <die v-for="d in dice" v-bind:di="d" :key="d.id">{{roll(d)}}</die>
         </div>
     `,
@@ -148,13 +155,11 @@ Vue.component("scoreCard", {
     }
   },
   template: `
-        <table>
-        <tr>
-        <th>Combo</th>
-        <th>Value</th>
-        </tr>
-            <item-selector v-for="i, index in scoreCard" v-bind:it="i" :key="index"></item-selector>
-            </table>
+        <div class="score-card">
+        <div class="cbhd">Combo</div>
+        <div class="vlhd">Value</div>
+        <item-selector v-for="i, index in scoreCard" v-bind:it="i" :key="index"></item-selector>
+        </div>    
     `,
   components: {
     "item-selector": Item
