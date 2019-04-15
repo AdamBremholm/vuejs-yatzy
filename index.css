@@ -1,0 +1,64 @@
+.container {
+    border-radius: 25px;
+    display: grid;
+    background-color: rgb(240, 227, 157);
+    height: 93vh;
+    width: 97vw;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    grid-row-gap: 3px;
+    grid-column-gap: 5px;
+    grid-template-columns: auto;
+    grid-template-rows: 1fr 4fr 1fr 1fr;
+    grid-template-areas: 'head'
+    'sc'
+    'dh'
+    'ac';
+
+}
+
+.header {
+    grid-area: head;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: white;
+    color: #016775;
+    font-weight: bold;
+    font-size: large;
+    overflow-x: hidden;
+    
+}
+
+score-card {
+    grid-area: sc;
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    background: white;
+    color: #016775;
+    font-weight: bold;
+    font-size: large;
+    overflow-x: hidden;
+    grid-row-gap: 3px;
+    grid-column-gap: 5px;
+    grid-template-columns: auto auto;
+    grid-template-rows: auto auto auto auto auto auto auto auto auto;
+}
+
+
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 25%;
+  }
+  
+  td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+  }
+  
+  tr:nth-child(even) {
+    background-color: #dddddd;
+  }

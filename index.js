@@ -73,8 +73,7 @@ const store = new Vuex.Store({
       {
         field: "totalt",
         value: 0
-      },
-
+      }
     ]
   },
 
@@ -87,9 +86,12 @@ const store = new Vuex.Store({
 const Item = {
   props: ["it"],
   template: `
-          <div >
-              {{it.field}},{{it.value}}
-          </div>
+          <tr>
+          <td>{{it.field}}</td>
+          <td>
+          {{it.value}}
+          </td>
+          </tr>
       `
 };
 // Skriver ut varje tärning i tärningsfältet, ska även hålla design för tärningarna
@@ -127,9 +129,8 @@ const DiceHolder = {
     }
   },
   template: `
-    <div>
+    <div class="dice-holder>
             <die v-for="d in dice" v-bind:di="d" :key="d.id">{{roll(d)}}</die>
-  
         </div>
     `,
   components: {
@@ -147,9 +148,13 @@ Vue.component("scoreCard", {
     }
   },
   template: `
-        <div>
+        <table>
+        <tr>
+        <th>Combo</th>
+        <th>Value</th>
+        </tr>
             <item-selector v-for="i, index in scoreCard" v-bind:it="i" :key="index"></item-selector>
-        </div>
+            </table>
     `,
   components: {
     "item-selector": Item
