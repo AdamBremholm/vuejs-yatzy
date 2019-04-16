@@ -38,6 +38,9 @@
 
 .score-card {
   grid-area: sc;
+  margin-left: 1vw;
+  margin-right: 1vw;
+  padding: 5vw;
   display: grid;
   justify-content: center;
   align-items: center;
@@ -45,35 +48,26 @@
   border-radius: 5px;
   grid-row-gap: 5px;
   grid-column-gap: 5px;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(100px, 2fr) minmax(15px, 1fr) minmax(100px, 2fr) minmax(15px, 1fr);
   grid-template-areas:
-    "cbhd vlhd"
-    "rw1 rw1"
-    "rw2 rw2"
-    "rw3 rw3"
-    "rw4 rw4"
-    "rw5 rw5"
-    "rw6 rw6"
-    "rw7 rw7"
-    "rw8 rw8"
-    "rw9 rw9"
-    "rw10 rw10"
-    "rw11 rw11"
-    "rw12 rw12"
-    "rw13 rw13"
-    "rw14 rw14"
-    "rw15 rw15"
-    "rw16 rw16"
-    "rw17 rw17"
-    "rw18 rw18";
+    "cb1 vl1 cb2 vl2"
+    "rw1 rw1 rw10 rw10"
+    "rw2 rw2 rw11 rw11"
+    "rw3 rw3 rw12 rw12"
+    "rw4 rw4 rw13 rw13"
+    "rw5 rw5 rw14 rw14"
+    "rw6 rw6 rw15 rw15"
+    "rw7 rw7 rw16 rw16"
+    "rw8 rw8 rw17 rw17"
+    "rw9 rw9 rw18 rw18";
 }
 
 .rw {
-  height: 20px;
   display: grid;
   background-color: #fff;
   color: black;
   border-radius: 5px;
+  grid-template-columns: minmax(100px, 2fr) minmax(15px, 1fr);
   grid-row-gap: 3px;
   grid-column-gap: 5px;
   grid-template-areas: "fi vl";
@@ -134,22 +128,37 @@
   grid-area: rw18;
 }
 
-.cbhd {
-  grid-area: cbhd;
+.cbvl {
   display: flex;
+  background-color: #fff;
+  color: black;
+  border-radius: 5px;
+  grid-row-gap: 3px;
+  grid-column-gap: 5px;
   justify-content: center;
   align-items: center;
-  border: 2px solid black;
-  border-radius: 5px;
+  font-weight: bold;
 }
 
-.vlhd {
-  grid-area: vlhd;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 2px solid black;
-  border-radius: 5px;
+.cb1 {
+  
+  grid-area: cb1;
+
+}
+
+.cb2 {
+  
+  grid-area: cb2;
+}
+
+.vl1 {
+  
+  grid-area: vl1;
+}
+
+.vl2 {
+ 
+  grid-area: vl2;
 }
 
 .fi {
@@ -157,8 +166,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 2px solid black;
-  border-radius: 25px;
+  border: 1px solid black;
+  border-radius: 5px;
   grid-column-start: 1;
   grid-column-end: 1;
 }
@@ -168,8 +177,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 2px solid black;
-  border-radius: 25px;
+  border: 1px solid black;
+  border-radius: 5px;
   grid-column-start: 2;
   grid-column-end: 2;
 }
