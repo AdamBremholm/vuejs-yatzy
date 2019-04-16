@@ -67,6 +67,7 @@
   background-color: #fff;
   color: black;
   border-radius: 5px;
+  padding: 3px; 
   grid-template-columns: minmax(100px, 2fr) minmax(15px, 1fr);
   grid-row-gap: 3px;
   grid-column-gap: 5px;
@@ -168,8 +169,8 @@
   align-items: center;
   border: 1px solid black;
   border-radius: 5px;
-  grid-column-start: 1;
-  grid-column-end: 1;
+  padding: 3px; 
+
 }
 
 .vl {
@@ -179,8 +180,8 @@
   align-items: center;
   border: 1px solid black;
   border-radius: 5px;
-  grid-column-start: 2;
-  grid-column-end: 2;
+  padding: 3px; 
+
 }
 
 .dice-holder {
