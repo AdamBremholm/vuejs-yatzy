@@ -2,82 +2,40 @@ const store = new Vuex.Store({
   state: {
     dice: [],
     scoreCard: [
-      { id : 1,
-        field: "ettor",
+      { id: 1, field: "ettor", value: 0 },
+      {
+        id: 2,
+        field: "tvåor",
         value: 0
       },
       {
-        id : 2,
-        field: "tvår",
-        value: 0
-      },
-      { 
-        id : 3,
+        id: 3,
         field: "treor",
         value: 0
       },
       {
-        id : 4,
+        id: 4,
         field: "fyror",
         value: 0
       },
       {
-        id : 5,
-        field: "femor",
+        id: 5,
+        field: "femmor",
         value: 0
       },
-      { id : 6,
-        field: "sexor",
-        value: 0
-      },
-      { id : 7,
-        field: "bonus",
-        value: 0
-      },
-      { id : 8,
-        field: "summa",
-        value: 0
-      },
-      { id : 9,
-        field: "par",
-        value: 0
-      },
-      { id : 10,
-        field: "två-par",
-        value: 0
-      },
-      { id : 11,
-        field: "tretal",
-        value: 0
-      },
-      { id : 12,
-        field: "fyrtal",
-        value: 0
-      },
-      { id : 13,
-        field: "liten stege",
-        value: 0
-      },
-      { id : 14,
-        field: "stor stege",
-        value: 0
-      },
-      { id : 15,
-        field: "kåk",
-        value: 0
-      },
-      { id : 16,
-        field: "chans",
-        value: 0
-      },
-      { id : 17,
-        field: "yatzy",
-        value: 0
-      },
-      { id : 18,
-        field: "totalt",
-        value: 0
-      }
+      { id: 6, field: "sexor", value: 0 },
+      { id: 7, field: "bonus", value: 0 },
+      { id: 8, field: "summa", value: 0 },
+      { id: 9, field: "par", value: 0 },
+      { id: 10, field: "två-par", value: 0 },
+      { id: 11, field: "tretal", value: 0 },
+      { id: 12, field: "fyrtal", value: 0 },
+      { id: 13, field: "liten stege", value: 0 },
+      { id: 14, field: "stor stege", value: 0 },
+      { id: 15, field: "kåk", value: 0 },
+      { id: 16, field: "chans", value: 0 },
+      { id: 17, field: "yatzy", value: 0 },
+      { id: 18, field: "totalt", value: 0 }
     ]
   },
 
@@ -90,10 +48,10 @@ const store = new Vuex.Store({
 const Item = {
   props: ["it"],
   computed: {
-    classObject: function () {
+    classObject: function() {
       return "rw " + "rw" + this.it.id;
     }
-    },
+  },
   template: `
          <div v-bind:class="classObject">
           <div class="fi">{{it.field}}</div>
@@ -179,6 +137,33 @@ const app = new Vue({
           locked: false
         });
       }
+    },
+    initScoreCard() {
+      let fieldArray = [
+        "ettor",
+        "tvåor",
+        "treor",
+        "fyror",
+        "femmor",
+        "sexor",
+        "bonus",
+        "summa",
+        "par",
+        "två-par",
+        "triss",
+        "fyrtal",
+        "liten-stege",
+        "stor-stege",
+        "kåk",
+        "chans",
+        "yatzy",
+        "total"
+      ];
+      for (let index = 0; index < fieldArray.length; index++) {
+        let indexPlusOne = index+1;
+        store.state.scoreCard.push({id: indexPlusOne, field : fieldArray[index], value : 0})
+      }
+      
     }
   },
   //Kör när vuen skapas
