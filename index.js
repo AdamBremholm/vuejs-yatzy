@@ -12,8 +12,9 @@ const store = new Vuex.Store({
 // Ska hålla actionknappsfältet
 const Actions = {
   template: `
-          <div >
-              roll, next
+          <div class="action-holder">
+          <div class="roll">roll</div>
+          <div class="next">next</div>
           </div>
       `
 };

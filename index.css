@@ -30,6 +30,7 @@
   align-items: center;
   background: white;
   color: #016775;
+  border: 1px solid black;
   font-weight: bold;
   font-size: large;
   overflow-x: hidden;
@@ -45,6 +46,7 @@
   justify-content: center;
   align-items: center;
   background: white;
+  border: 1px solid black;
   border-radius: 5px;
   grid-row-gap: 5px;
   grid-column-gap: 5px;
@@ -189,6 +191,7 @@
   color: black;
   border-radius: 5px;
   padding: 3px;
+  border: 1px solid black;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   grid-row-gap: 3px;
   grid-column-gap: 5px;
@@ -201,6 +204,7 @@
   align-items: center;
   border: 1px solid black;
   font-size: xx-large;
+  border-radius: 5px;
 }
 
 .di1 {
@@ -221,6 +225,36 @@
 
 .action-holder {
   grid-area: ah;
+  display: grid;
   justify-content: center;
   align-items: center;
+  border-radius: 5px;
+  background-color: #fff;
+  color: black;
+  border: 1px solid black;
+  padding: 3px;
+  grid-column-gap: 50px;
+  grid-template-columns: minmax(50px, 1fr) minmax(50px, 1fr);
+  grid-template-areas: "ro ne";
+}
+
+.roll {
+  grid-area: ro;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid black;
+  border-radius: 5px;
+  padding: 5px;
+  
+}
+
+.next {
+  grid-area: ne;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid black;
+  border-radius: 5px;
+  padding: 5px;
 }
