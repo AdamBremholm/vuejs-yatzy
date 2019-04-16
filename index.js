@@ -9,21 +9,37 @@ const store = new Vuex.Store({
   mutations: {}
 });
 
-// Skriver ut varje tärning i tärningsfältet, ska även hålla design för tärningarna
-const Die = {
-  props: ["di"],
-
-  template: `<div>
-      {{di.value}}
-      </div>
-      `
-};
 // Ska hålla actionknappsfältet
 const Actions = {
   template: `
           <div >
               roll, next
           </div>
+      `
+};
+
+// Skriver ut varje tärning i tärningsfältet, ska även hålla design för tärningarna
+const Die = {
+  props: ["di"],
+  store,
+  computed: {
+    classObject() {
+      let idPlusOne = this.di.id + 1;
+      return "di " + "di" + idPlusOne;
+    },
+    getDieUnicode() {
+      if (this.di.value === 1) return "&#9856;";
+      else if (this.di.value === 2) return "&#9857;";
+      else if (this.di.value === 3) return "&#9858;";
+      else if (this.di.value === 4) return "&#9859;";
+      else if (this.di.value === 5) return "&#9860;";
+      else if (this.di.value === 6) return "&#9861;";
+      else return "";
+    }
+  },
+
+  template: `<div v-bind:class="classObject" v-html="getDieUnicode">
+      </div>
       `
 };
 

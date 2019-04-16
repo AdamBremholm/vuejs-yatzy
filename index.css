@@ -48,7 +48,10 @@
   border-radius: 5px;
   grid-row-gap: 5px;
   grid-column-gap: 5px;
-  grid-template-columns: minmax(100px, 2fr) minmax(15px, 1fr) minmax(100px, 2fr) minmax(15px, 1fr);
+  grid-template-columns: minmax(100px, 2fr) minmax(15px, 1fr) minmax(100px, 2fr) minmax(
+      15px,
+      1fr
+    );
   grid-template-areas:
     "cb1 vl1 cb2 vl2"
     "rw1 rw1 rw10 rw10"
@@ -67,7 +70,7 @@
   background-color: #fff;
   color: black;
   border-radius: 5px;
-  padding: 3px; 
+  padding: 3px;
   grid-template-columns: minmax(100px, 2fr) minmax(15px, 1fr);
   grid-row-gap: 3px;
   grid-column-gap: 5px;
@@ -142,23 +145,18 @@
 }
 
 .cb1 {
-  
   grid-area: cb1;
-
 }
 
 .cb2 {
-  
   grid-area: cb2;
 }
 
 .vl1 {
-  
   grid-area: vl1;
 }
 
 .vl2 {
- 
   grid-area: vl2;
 }
 
@@ -169,8 +167,7 @@
   align-items: center;
   border: 1px solid black;
   border-radius: 5px;
-  padding: 3px; 
-
+  padding: 3px;
 }
 
 .vl {
@@ -180,14 +177,46 @@
   align-items: center;
   border: 1px solid black;
   border-radius: 5px;
-  padding: 3px; 
-
+  padding: 3px;
 }
 
 .dice-holder {
   grid-area: dh;
   justify-content: center;
   align-items: center;
+  display: grid;
+  background-color: #fff;
+  color: black;
+  border-radius: 5px;
+  padding: 3px;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  grid-row-gap: 3px;
+  grid-column-gap: 5px;
+  grid-template-areas: "di1 di2 di3 di4 di5";
+}
+
+.di {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid black;
+  font-size: xx-large;
+}
+
+.di1 {
+  grid-area: di1;
+}
+.di2 {
+  grid-area: di2;
+}
+.di3 {
+  grid-area: di3;
+}
+.di4 {
+  grid-area: di4;
+}
+.di5 {
+  grid-area: di5;
 }
 
 .action-holder {
