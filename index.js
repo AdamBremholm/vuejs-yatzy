@@ -7,8 +7,9 @@ const store = new Vuex.Store({
     getOpenSlots: state => {
       return state.scoreCard.filter(item => item.value === 0);
     },
+
     //Hämtar enbart ut värdet från tärningarna och returnerar till ny array
-    diceValues : state => {
+    diceValues: state => {
       results = [];
       state.dice.forEach(d => {
         results.push(d.value);
@@ -23,8 +24,9 @@ const store = new Vuex.Store({
       });
       return sortedArray;
     },
+
     //Räknar ut värdet på par genom att gå igenom den sorterade arrayen och se om samma tal finns efter.
-    //Returnerar det talet*2 för att få fram parets värde i spelet. 
+    //Returnerar det talet*2 för att få fram parets värde i spelet.
     calculatePairs: (state, getters) => {
       var results = 0;
       for (var i = 0; i < getters.sortedDice.length - 1; i++) {
@@ -33,7 +35,89 @@ const store = new Vuex.Store({
           break;
         }
       }
-      return results*2;
+      return results * 2;
+    },
+    calculateThreeOfAKind: (state, getters) => {
+      var results = 0;
+      for (var i = 0; i < getters.sortedDice.length - 1; i++) {
+        if (
+          getters.sortedDice[i + 1] == getters.sortedDice[i] &&
+          getters.sortedDice[i + 2] == getters.sortedDice[i + 1]
+        ) {
+          results = getters.sortedDice[i];
+          break;
+        }
+      }
+      return results * 3;
+    },
+    calculateFourOfAKind: (state, getters) => {
+      var results = 0;
+      for (var i = 0; i < getters.sortedDice.length - 1; i++) {
+        if (
+          getters.sortedDice[i + 1] == getters.sortedDice[i] &&
+          getters.sortedDice[i + 2] == getters.sortedDice[i + 1] &&
+          getters.sortedDice[i + 3] == getters.sortedDice[i + 2]
+        ) {
+          results = getters.sortedDice[i];
+          break;
+        }
+      }
+      return results * 4;
+    },
+    calculateTwoPairs: (state, getters) => {
+      var results = [];
+      for (var i = 0; i < getters.sortedDice.length - 1; i++) {
+        if (getters.sortedDice[i + 1] == getters.sortedDice[i]) {
+          results.push(getters.sortedDice[i]);
+          results.push(getters.sortedDice[i + 1]);
+        }
+      }
+      if (results.length > 3) {
+        //Metod för att addera alla värden i results arrayen. Kollar att längden är större än 4 eller högre så vi vet att det
+        //är två-par
+        return results.reduce((partial_sum, a) => partial_sum + a);
+      } else return 0;
+    },
+    //Har inte testkört än
+    calculateFullHouse: (state, getters) => {
+      let aggregate = getters.calculateAggregate;
+      let threeOfAKind = 0;
+      let pair = 0;
+      let sum = 0;
+      for (let i = 0; i < aggregate.length; i++) {
+        if (aggregate[i].count === 3) {
+          threeOfAKind = aggregate[i].number * 3;
+        }
+        if (aggregate[i].count === 2) {
+          pair = aggregate[i].number * 2;
+        }
+      }
+      if (threeOfAKind > 0 && pair > 0) sum = threeOfAKind + pair;
+
+      return sum;
+    },
+    mockdataArray: state => {
+      let mockArray = [{ number: 4, count: 3 }, { number: 3, count: 2 }];
+      return mockArray;
+    },
+
+    calculateAggregate: (state, getters) => {
+      let aggregate = [];
+      let current = null;
+      let cnt = 0;
+
+      for (let i = 0; i <= getters.sortedDice.length; i++) {
+        if (getters.sortedDice[i] != current) {
+          if (cnt > 0) {
+            aggregate.push({ number: current, count: cnt });
+          }
+          current = getters.sortedDice[i];
+          cnt = 1;
+        } else {
+          cnt++;
+        }
+      }
+      return aggregate;
     },
     displayPossibleScores: (state, getters) => {
       for (let index = 0; index < getters.getOpenSlots.length; index++) {}
