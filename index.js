@@ -3,20 +3,75 @@ const store = new Vuex.Store({
     dice: [],
     scoreCard: []
   },
-
-  getters: {},
-
+  getters: {
+    getOpenSlots: state => {
+      return state.scoreCard.filter(item => item.value === 0);
+    },
+    //Hämtar enbart ut värdet från tärningarna och returnerar till ny array
+    diceValues : state => {
+      results = [];
+      state.dice.forEach(d => {
+        results.push(d.value);
+      });
+      return results;
+    },
+    //Sorterar med högsta tal först
+    sortedDice: (state, getters) => {
+      let sortedArray = [];
+      sortedArray = getters.diceValues.slice().sort(function(a, b) {
+        return b - a;
+      });
+      return sortedArray;
+    },
+    //Räknar ut värdet på par genom att gå igenom den sorterade arrayen och se om samma tal finns efter.
+    //Returnerar det talet*2 för att få fram parets värde i spelet. 
+    calculatePairs: (state, getters) => {
+      var results = 0;
+      for (var i = 0; i < getters.sortedDice.length - 1; i++) {
+        if (getters.sortedDice[i + 1] == getters.sortedDice[i]) {
+          results = getters.sortedDice[i];
+          break;
+        }
+      }
+      return results*2;
+    },
+    displayPossibleScores: (state, getters) => {
+      for (let index = 0; index < getters.getOpenSlots.length; index++) {}
+    }
+  },
   mutations: {}
 });
 
 // Ska hålla actionknappsfältet
 const Actions = {
+  computed: {
+    getOpenSlots() {
+      return this.$store.getters.getOpenSlots;
+    }
+  },
   template: `
           <div class="action-holder">
           <div class="roll">roll</div>
           <div class="next">next</div>
           </div>
       `
+};
+
+const Header = {
+  computed: {
+    scoreCard() {
+      return this.$store.state.scoreCard;
+    },
+    totalScore() {
+      let sum = 0;
+      for (let index = 0; index < this.scoreCard.length; index++) {
+        sum += this.scoreCard[index].value;
+      }
+      return sum;
+    }
+  },
+  template: `<div>Yatzy --- Score: {{totalScore}}
+      </div>`
 };
 
 // Skriver ut varje tärning i tärningsfältet, ska även hålla design för tärningarna
@@ -161,6 +216,7 @@ const app = new Vue({
   },
   components: {
     "dice-holder": DiceHolder,
-    "action-holder": Actions
+    "action-holder": Actions,
+    "header-holder": Header
   }
 });

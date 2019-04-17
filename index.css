@@ -33,7 +33,7 @@
   border: 1px solid black;
   font-weight: bold;
   font-size: large;
-  overflow-x: hidden;
+
   border-radius: 5px;
 }
 
@@ -41,7 +41,7 @@
   grid-area: sc;
   margin-left: 1vw;
   margin-right: 1vw;
-  padding: 5vw;
+  padding: 2vw;
   display: grid;
   justify-content: center;
   align-items: center;
