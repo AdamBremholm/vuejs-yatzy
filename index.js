@@ -17,21 +17,65 @@ const store = new Vuex.Store({
       return results;
     },
     //Sorterar med högsta tal först
-    sortedDice: (state, getters) => {
+    sortByDesDice: (state, getters) => {
       let sortedArray = [];
       sortedArray = getters.diceValues.slice().sort(function(a, b) {
         return b - a;
       });
       return sortedArray;
     },
-
+    sortByAscDice: (state, getters) => {
+      let sortedArray = [];
+      sortedArray = getters.diceValues.slice().sort(function(a, b) {
+        return a - b;
+      });
+      return sortedArray;
+    },
+    // Hämtar summan av num som man skickar in som inparameter. Om objektet är undefined (dvs kunde inte hittas returneras 0)
+    calculateNumbers: (state, getters) => num => {
+      let sum = 0;
+      let aggregateObj = { number: num, count: 0 };
+      let temp = {};
+      temp = getters.calculateAggregate.find(d => d.number === num);
+      if (typeof temp != "undefined") aggregateObj = temp;
+      sum = aggregateObj.number * aggregateObj.count;
+      return sum;
+    },
+    scoreCardValues: state => {
+      let results = [];
+      state.scoreCard.forEach(s => {
+        results.push(s.value);
+      });
+      return results;
+    },
+    scoreCardValuesForNumbers: state => {
+      let results = [];
+      state.scoreCard.forEach(s => {
+        if (s.id < 7) results.push(s.value);
+      });
+      return results;
+    },
+    calculateTotalScore: (state, getters) => {
+      return getters.scoreCardValues.reduce(
+        (partial_sum, a) => partial_sum + a
+      );
+    },
+    calculateBonus: (state, getters) => {
+      if (
+        getters.scoreCardValuesForNumbers.reduce(
+          (partial_sum, a) => partial_sum + a
+        ) >= 63
+      )
+        return 50;
+      else return 0;
+    },
     //Räknar ut värdet på par genom att gå igenom den sorterade arrayen och se om samma tal finns efter.
     //Returnerar det talet*2 för att få fram parets värde i spelet.
     calculatePairs: (state, getters) => {
       var results = 0;
-      for (var i = 0; i < getters.sortedDice.length - 1; i++) {
-        if (getters.sortedDice[i + 1] == getters.sortedDice[i]) {
-          results = getters.sortedDice[i];
+      for (var i = 0; i < getters.sortByDesDice.length - 1; i++) {
+        if (getters.sortByDesDice[i + 1] == getters.sortByDesDice[i]) {
+          results = getters.sortByDesDice[i];
           break;
         }
       }
@@ -39,12 +83,12 @@ const store = new Vuex.Store({
     },
     calculateThreeOfAKind: (state, getters) => {
       var results = 0;
-      for (var i = 0; i < getters.sortedDice.length - 1; i++) {
+      for (var i = 0; i < getters.sortByDesDice.length - 1; i++) {
         if (
-          getters.sortedDice[i + 1] == getters.sortedDice[i] &&
-          getters.sortedDice[i + 2] == getters.sortedDice[i + 1]
+          getters.sortByDesDice[i + 1] == getters.sortByDesDice[i] &&
+          getters.sortByDesDice[i + 2] == getters.sortByDesDice[i + 1]
         ) {
-          results = getters.sortedDice[i];
+          results = getters.sortByDesDice[i];
           break;
         }
       }
@@ -52,24 +96,39 @@ const store = new Vuex.Store({
     },
     calculateFourOfAKind: (state, getters) => {
       var results = 0;
-      for (var i = 0; i < getters.sortedDice.length - 1; i++) {
+      for (var i = 0; i < getters.sortByDesDice.length - 1; i++) {
         if (
-          getters.sortedDice[i + 1] == getters.sortedDice[i] &&
-          getters.sortedDice[i + 2] == getters.sortedDice[i + 1] &&
-          getters.sortedDice[i + 3] == getters.sortedDice[i + 2]
+          getters.sortByDesDice[i + 1] == getters.sortByDesDice[i] &&
+          getters.sortByDesDice[i + 2] == getters.sortByDesDice[i + 1] &&
+          getters.sortByDesDice[i + 3] == getters.sortByDesDice[i + 2]
         ) {
-          results = getters.sortedDice[i];
+          results = getters.sortByDesDice[i];
           break;
         }
       }
       return results * 4;
     },
+    calculateYatzy: (state, getters) => {
+      var results = 0;
+      for (var i = 0; i < getters.sortByDesDice.length - 1; i++) {
+        if (
+          getters.sortByDesDice[i + 1] == getters.sortByDesDice[i] &&
+          getters.sortByDesDice[i + 2] == getters.sortByDesDice[i + 1] &&
+          getters.sortByDesDice[i + 3] == getters.sortByDesDice[i + 2] &&
+          getters.sortByDesDice[i + 4] == getters.sortByDesDice[i + 3]
+        ) {
+          results = 50;
+          break;
+        }
+      }
+      return results;
+    },
     calculateTwoPairs: (state, getters) => {
       var results = [];
-      for (var i = 0; i < getters.sortedDice.length - 1; i++) {
-        if (getters.sortedDice[i + 1] == getters.sortedDice[i]) {
-          results.push(getters.sortedDice[i]);
-          results.push(getters.sortedDice[i + 1]);
+      for (var i = 0; i < getters.sortByDesDice.length - 1; i++) {
+        if (getters.sortByDesDice[i + 1] == getters.sortByDesDice[i]) {
+          results.push(getters.sortByDesDice[i]);
+          results.push(getters.sortByDesDice[i + 1]);
         }
       }
       if (results.length > 3) {
@@ -78,7 +137,7 @@ const store = new Vuex.Store({
         return results.reduce((partial_sum, a) => partial_sum + a);
       } else return 0;
     },
-    //Har inte testkört än
+
     calculateFullHouse: (state, getters) => {
       let aggregate = getters.calculateAggregate;
       let threeOfAKind = 0;
@@ -96,22 +155,43 @@ const store = new Vuex.Store({
 
       return sum;
     },
+    //Ser om det är stege genom att kolla om nästa steg i sortarede arrayen är 1 siffra högre än den förra.
+    //Kollar om stor eller liten genom att se antalet 6:or.
+    calculateStraight: (state, getters) => {
+      let array = getters.sortByAscDice;
+      for (let i = 0; i < array.length - 1; i++) {
+        if (array[i + 1] != array[i] + 1) {
+          return 0;
+        }
+      }
+      if (getters.calculateNumbers(6) === 0) return 15;
+      else return 20;
+    },
+    calculateChance: (state, getters) => {
+      let array = getters.diceValues;
+      return array.reduce((partial_sum, a) => partial_sum + a);
+    },
+    //Mockdata that can be used for testing functions that use aggregate
     mockdataArray: state => {
       let mockArray = [{ number: 4, count: 3 }, { number: 3, count: 2 }];
       return mockArray;
     },
-
+    //mockarray for testing functions that are using number arrays
+    mockNumberArray: state => {
+      let mockArray = [2, 3, 4, 5, 6];
+      return mockArray;
+    },
     calculateAggregate: (state, getters) => {
       let aggregate = [];
       let current = null;
       let cnt = 0;
 
-      for (let i = 0; i <= getters.sortedDice.length; i++) {
-        if (getters.sortedDice[i] != current) {
+      for (let i = 0; i <= getters.sortByDesDice.length; i++) {
+        if (getters.sortByDesDice[i] != current) {
           if (cnt > 0) {
             aggregate.push({ number: current, count: cnt });
           }
-          current = getters.sortedDice[i];
+          current = getters.sortByDesDice[i];
           cnt = 1;
         } else {
           cnt++;
