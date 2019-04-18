@@ -29,7 +29,7 @@
   justify-content: center;
   align-items: center;
   background: white;
-  color: #016775;
+  color: black;
   border: 1px solid black;
   font-weight: bold;
   font-size: large;
@@ -198,6 +198,8 @@
   grid-template-areas: "di1 di2 di3 di4 di5";
 }
 
+
+
 .di {
   display: flex;
   justify-content: center;
@@ -205,6 +207,10 @@
   border: 1px solid black;
   font-size: xx-large;
   border-radius: 5px;
+}
+.orange{
+  border: 1px solid orange;
+  background-color: orange;
 }
 
 .di1 {

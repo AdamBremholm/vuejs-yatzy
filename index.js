@@ -1,7 +1,8 @@
 const store = new Vuex.Store({
   state: {
     dice: [],
-    scoreCard: []
+    scoreCard: [],
+    rollsLeft: 3
   },
   getters: {
     getOpenSlots: state => {
@@ -56,12 +57,25 @@ const store = new Vuex.Store({
       return results;
     },
     calculateTotalScore: (state, getters) => {
-      return getters.scoreCardValues.reduce(
+      if (!getters.scoreCardValues.length === 0) {
+        return getters.scoreCardValues.reduce(
+          (partial_sum, a) => partial_sum + a
+        );
+      } else return 0;
+    },
+    calculatePartialScore: (state, getters) => {
+      
+      let result = 0;
+      result = getters.scoreCardValuesForNumbers.reduce(
         (partial_sum, a) => partial_sum + a
       );
+        
+      return result
+    
     },
     calculateBonus: (state, getters) => {
       if (
+        !getters.scoreCardValuesForNumbers.length === 0 &&
         getters.scoreCardValuesForNumbers.reduce(
           (partial_sum, a) => partial_sum + a
         ) >= 63
@@ -157,15 +171,16 @@ const store = new Vuex.Store({
     },
     //Ser om det är stege genom att kolla om nästa steg i sortarede arrayen är 1 siffra högre än den förra.
     //Kollar om stor eller liten genom att se antalet 6:or.
-    calculateStraight: (state, getters) => {
+    calculateStraight: (state, getters) => size => {
       let array = getters.sortByAscDice;
       for (let i = 0; i < array.length - 1; i++) {
         if (array[i + 1] != array[i] + 1) {
           return 0;
         }
       }
-      if (getters.calculateNumbers(6) === 0) return 15;
-      else return 20;
+      if (getters.calculateNumbers(6) === 0 && size === "small") return 15;
+      else if (getters.calculateNumbers(1) === 0 && size === "large") return 20;
+      else return 0;
     },
     calculateChance: (state, getters) => {
       let array = getters.diceValues;
@@ -203,23 +218,43 @@ const store = new Vuex.Store({
       for (let index = 0; index < getters.getOpenSlots.length; index++) {}
     }
   },
-  mutations: {}
+  mutations: {
+    rollDice(state) {
+      state.dice.forEach(d => {
+        if (!d.locked) {
+          d.value = Math.floor(Math.random() * 6) + 1;
+        }
+      });
+    },
+    toggleLock(state, payload) {
+      let index = state.dice.findIndex(x => x.id === payload);
+      state.dice[index].locked = !state.dice[index].locked;
+    }
+  }
 });
+
 
 // Ska hålla actionknappsfältet
 const Actions = {
+  store,
   computed: {
     getOpenSlots() {
       return this.$store.getters.getOpenSlots;
     }
   },
+  methods: {
+    rollDice() {
+      store.commit("rollDice");
+    }
+  },
   template: `
           <div class="action-holder">
-          <div class="roll">roll</div>
+          <div class="roll" v-on:click="rollDice">roll</div>
           <div class="next">next</div>
           </div>
       `
 };
+
 
 const Header = {
   computed: {
@@ -234,7 +269,7 @@ const Header = {
       return sum;
     }
   },
-  template: `<div>Yatzy --- Score: {{totalScore}}
+  template: `<div>Yatzy --- Score: {{totalScore}} ---
       </div>`
 };
 
@@ -243,9 +278,13 @@ const Die = {
   props: ["di"],
   store,
   computed: {
+    id() {
+      return this.di.id;
+    },
     classObject() {
       let idPlusOne = this.di.id + 1;
-      return "di " + "di" + idPlusOne;
+      if (!this.di.locked) return "di " + "di" + idPlusOne;
+      else return "di orange " + "di" + idPlusOne;
     },
     getDieUnicode() {
       if (this.di.value === 1) return "&#9856;";
@@ -257,8 +296,13 @@ const Die = {
       else return "";
     }
   },
+  methods: {
+    toggleLock(id) {
+      store.commit("toggleLock", id);
+    }
+  },
 
-  template: `<div v-bind:class="classObject" v-html="getDieUnicode">
+  template: `<div v-bind:class="classObject" v-html="getDieUnicode" v-on:click="toggleLock(id)">
       </div>
       `
 };
@@ -270,18 +314,9 @@ const DiceHolder = {
       return this.$store.state.dice;
     }
   },
-  methods: {
-    roll(d) {
-      //Kollar om tärningen är låst och om inte rollar om den, returnerar värdet på tärningen.
-      if (!d.locked) {
-        d.value = Math.floor(Math.random() * 6) + 1;
-      }
-      return d.value;
-    }
-  },
   template: `
     <div class="dice-holder">
-            <die v-for="d in dice" v-bind:di="d" :key="d.id">{{roll(d)}}</die>
+            <die v-for="d in dice" v-bind:di="d" :key="d.id"></die>
         </div>
     `,
   components: {
@@ -292,15 +327,60 @@ const DiceHolder = {
 //Ska skriva ut varje fält i scorecardet
 const Item = {
   props: ["it"],
+  store,
   computed: {
     classObject: function() {
       return "rw " + "rw" + this.it.id;
-    }
+    },
+    displayScore() {
+      if (this.$store.state.scoreCard[this.it.id-1].value===0){
+      switch (this.it.field) {
+        case "ettor" : return this.calculateNumbersOne
+        case "tvåor" : return this.calculateNumbersTwo 
+        case "treor" : return this.calculateNumbersThree 
+        case "fyror" : return this.calculateNumbersFour
+        case "femmor" :return this.calculateNumbersFive 
+        case "sexor" : return this.calculateNumbersSix 
+        case "bonus" : return this.calculateBonus 
+        case "summa" : return this.calculatePartialScore 
+        case "par" : return this.calculatePairs 
+        case "två-par" : return this.calculateTwoPairs
+        case "triss" : return this.calculateThreeOfAKind
+        case "fyrtal" : return this.calculateFourOfAKind
+        case "liten-stege" : return this.calculateSmallStraight
+        case "stor-stege" :return this.calculateLargeStraight
+        case "kåk" : return this.calculateFullHouse
+        case "chans" :return this.calculateChance
+        case "yatzy" : return this.calculateYatzy
+        case "total" : return this.calculateTotalScore
+        default: return 0
+      }
+      
+    } else return 99;
+    },
+      calculateNumbersOne() {return this.$store.getters.calculateNumbers(1)},
+      calculateNumbersTwo() {return this.$store.getters.calculateNumbers(2)},
+      calculateNumbersThree() {return this.$store.getters.calculateNumbers(3)},
+      calculateNumbersFour() {return this.$store.getters.calculateNumbers(4)},
+      calculateNumbersFive() {return this.$store.getters.calculateNumbers(5)},
+      calculateNumbersSix() {return this.$store.getters.calculateNumbers(6)},
+      calculateBonus() {return this.$store.getters.calculateBonus},
+      calculatePairs() {this.$store.getters.calculatePairs},
+      calculateThreeOfAKind() {this.$store.getters.calculateThreeOfAKind},
+      calculateTwoPairs() {this.$store.getters.calculateTwoPairs},
+      scoreCardValuesForNumbers(){this.$store.getters.scoreCardValuesForNumbers},
+      calculateFourOfAKind() {this.$store.getters.calculateFourOfAKind},
+      calculateFullHouse () {this.$store.getters.calculateFullHouse},
+      calculateSmallStraight () {this.$store.getters.calculateStraight("small")},
+      calculateLargeStraight () {this.$store.getters.calculateStraight("large")},
+      calculateYatzy () {this.$store.getters.calculateYatzy},
+      calculatePartialScore () {this.$store.getters.calculatePartialScore},
+      calculateTotalScore () {this.$store.getters.calculateTotalScore},
   },
   template: `
          <div v-bind:class="classObject">
           <div class="fi">{{it.field}}</div>
-          <div class="vl">{{it.value}}</div>
+          <div class="vl">{{displayScore}}</div>
           </div>
       `
 };
@@ -328,8 +408,10 @@ Vue.component("scoreCard", {
   }
 });
 
+
+
 const app = new Vue({
-  store,
+  store: store,
   el: "#app",
   methods: {
     //Lägger in 5 tärningar i vuex store
@@ -363,6 +445,7 @@ const app = new Vue({
         "yatzy",
         "total"
       ];
+      
       for (let index = 0; index < fieldArray.length; index++) {
         let indexPlusOne = index + 1;
         store.state.scoreCard.push({
