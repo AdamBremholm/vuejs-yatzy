@@ -125,7 +125,7 @@ const store = new Vuex.Store({
     calculateYatzy: (state, getters) => {
       var results = 0;
       for (var i = 0; i < getters.sortByDesDice.length - 1; i++) {
-        if (
+        if ( getters.sortByDesDice[i]!=0 &&
           getters.sortByDesDice[i + 1] == getters.sortByDesDice[i] &&
           getters.sortByDesDice[i + 2] == getters.sortByDesDice[i + 1] &&
           getters.sortByDesDice[i + 3] == getters.sortByDesDice[i + 2] &&
@@ -365,17 +365,18 @@ const Item = {
       calculateNumbersFive() {return this.$store.getters.calculateNumbers(5)},
       calculateNumbersSix() {return this.$store.getters.calculateNumbers(6)},
       calculateBonus() {return this.$store.getters.calculateBonus},
-      calculatePairs() {this.$store.getters.calculatePairs},
-      calculateThreeOfAKind() {this.$store.getters.calculateThreeOfAKind},
-      calculateTwoPairs() {this.$store.getters.calculateTwoPairs},
-      scoreCardValuesForNumbers(){this.$store.getters.scoreCardValuesForNumbers},
-      calculateFourOfAKind() {this.$store.getters.calculateFourOfAKind},
-      calculateFullHouse () {this.$store.getters.calculateFullHouse},
-      calculateSmallStraight () {this.$store.getters.calculateStraight("small")},
-      calculateLargeStraight () {this.$store.getters.calculateStraight("large")},
-      calculateYatzy () {this.$store.getters.calculateYatzy},
-      calculatePartialScore () {this.$store.getters.calculatePartialScore},
-      calculateTotalScore () {this.$store.getters.calculateTotalScore},
+      calculatePairs() {return this.$store.getters.calculatePairs},
+      calculateThreeOfAKind() {return this.$store.getters.calculateThreeOfAKind},
+      calculateTwoPairs() {return this.$store.getters.calculateTwoPairs},
+      scoreCardValuesForNumbers(){return this.$store.getters.scoreCardValuesForNumbers},
+      calculateFourOfAKind() {return this.$store.getters.calculateFourOfAKind},
+      calculateFullHouse () {return this.$store.getters.calculateFullHouse},
+      calculateSmallStraight () {return this.$store.getters.calculateStraight("small")},
+      calculateLargeStraight () {return this.$store.getters.calculateStraight("large")},
+      calculateYatzy () {return this.$store.getters.calculateYatzy},
+      calculatePartialScore () {return this.$store.getters.calculatePartialScore},
+      calculateTotalScore () {return this.$store.getters.calculateTotalScore},
+      calculateChance () {return this.$store.getters.calculateChance},
   },
   template: `
          <div v-bind:class="classObject">
