@@ -251,11 +251,25 @@ const store = new Vuex.Store({
                 state.activeItem.pop()
             }
         },
-        deepLock(state, payload) {
+        deepLock(state) {
             //När next klickas i ska det itemet som är locked bli unlockable = false, spara locked item i en array med 1 plats activeItem?
+            //fixar så id motsvarar index i scorecard arrayen
+            let id = state.activeItem[0].id - 1
+            state.scoreCard[id].unlockable = false
+        },
+        popActiveItem(state) {
+            state.activeItem.pop()
+        },
+        restoreRollsLeft(state) {
+            state.rollsLeft = 3
         },
         decrementRollsLeft(state) {
             if (state.rollsLeft > 0) state.rollsLeft--
+        },
+        resetDice(state) {
+            state.dice.forEach(d => {
+                d.value = 0
+            })
         },
     },
 })
@@ -301,7 +315,7 @@ const Die = {
             store.commit('toggleLockDice', id)
         },
     },
-//TODO: se om du kan fixa hide class när värdet = 0 på tärningar.
+    // TODO: Fixa hide class när värdet är 0 på tärningar.
     template: `<div v-bind:class="classObject" v-html="getDieUnicode" v-on:click="toggleLockDice(id)">
       </div>
       `,
@@ -452,20 +466,21 @@ const Actions = {
             }
         },
         decrementRollsLeft() {
-            console.log('im running')
             store.commit('decrementRollsLeft')
         },
         nextRound() {
-          //Nollar tärningarna så man inte kan klicka på något 
-          this.initDice()
-          //Fixar deeplock på det aktiva itemet i scorecardet och nollställer activeItemArrayen
-          
-        }
+            //Nollar tärningarna så man inte kan klicka på något
+            store.commit('resetDice')
+            //Fixar deeplock på det aktiva itemet i scorecardet och nollställer activeItemArrayen set available rolls to r again
+            store.commit('deepLock')
+            store.commit('popActiveItem')
+            store.commit('restoreRollsLeft')
+        },
     },
     template: `
         <div class="action-holder">
         <div class="roll" v-on:click="rollDice">roll {{getRollsLeft}}</div>
-        <div class="next">next</div>
+        <div class="next" v-on:click="nextRound">next</div>
         </div>
     `,
 }
