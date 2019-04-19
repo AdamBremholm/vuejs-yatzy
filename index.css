@@ -181,6 +181,9 @@
   border-radius: 5px;
   padding: 3px;
 }
+.bold {
+  font-weight: bold;
+}
 
 .dice-holder {
   grid-area: dh;
@@ -198,8 +201,6 @@
   grid-template-areas: "di1 di2 di3 di4 di5";
 }
 
-
-
 .di {
   display: flex;
   justify-content: center;
@@ -208,9 +209,8 @@
   font-size: xx-large;
   border-radius: 5px;
 }
-.orange{
-  border: 1px solid orange;
-  background-color: orange;
+.orange {
+  border: 3px solid orange;
 }
 
 .di1 {
@@ -252,7 +252,6 @@
   border: 1px solid black;
   border-radius: 5px;
   padding: 5px;
-  
 }
 
 .next {
