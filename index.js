@@ -3,6 +3,7 @@ const store = new Vuex.Store({
         dice: [],
         scoreCard: [],
         rollsLeft: 3,
+        activeItem: [],
     },
     getters: {
         getOpenSlots: state => {
@@ -227,21 +228,37 @@ const store = new Vuex.Store({
                 }
             })
         },
-        toggleLock(state, payload) {
+        toggleLockDice(state, payload) {
             let index = state.dice.findIndex(x => x.id === payload)
             state.dice[index].locked = !state.dice[index].locked
         },
         setScoreAndLock(state, payload) {
-            state.scoreCard[payload.index].value = payload.value
-            state.scoreCard[payload.index].locked = true
+            //Kollar att det inte redan finns ett active item eftersom vi bara ska kunna låsa ett fält per runda.
+            if (state.activeItem.length === 0) {
+                state.scoreCard[payload.index].value = payload.value
+                state.scoreCard[payload.index].locked = true
+                state.activeItem.push(state.scoreCard[payload.index])
+            }
+        },
+        //kollar att itemet som ska låsas upp matchas med den som ligger i activeItem. Låser upp, nollar och tar bort activeItemen från arrayen
+        unlockItem(state, payload) {
+            if (
+                state.activeItem[0].id === state.scoreCard[payload].id &&
+                state.scoreCard[payload].unlockable === true
+            ) {
+                state.scoreCard[payload].locked = false
+                state.scoreCard[payload].value = 0
+                state.activeItem.pop()
+            }
+        },
+        deepLock(state, payload) {
+            //När next klickas i ska det itemet som är locked bli unlockable = false, spara locked item i en array med 1 plats activeItem?
         },
         decrementRollsLeft(state) {
-          if(state.rollsLeft>0)
-          state.rollsLeft--
-        }
+            if (state.rollsLeft > 0) state.rollsLeft--
+        },
     },
 })
-
 
 const Header = {
     computed: {
@@ -280,12 +297,12 @@ const Die = {
         },
     },
     methods: {
-        toggleLock(id) {
-            store.commit('toggleLock', id)
+        toggleLockDice(id) {
+            store.commit('toggleLockDice', id)
         },
     },
-
-    template: `<div v-bind:class="classObject" v-html="getDieUnicode" v-on:click="toggleLock(id)">
+//TODO: se om du kan fixa hide class när värdet = 0 på tärningar.
+    template: `<div v-bind:class="classObject" v-html="getDieUnicode" v-on:click="toggleLockDice(id)">
       </div>
       `,
 }
@@ -367,15 +384,25 @@ const Item = {
      
   },
     methods: {
-        lockToScoreCard() {
+        // Lägger in värdet och låser och upplåst, om låst kollar att den är unlockable,
+        // låser upp och kör unlockitem som återställer itemet i scorecardet och återställer vårt aktiva item.
+        toggleLockToScoreCard() {
             if (this.$store.state.scoreCard[this.it.id - 1].locked === false) {
                 let payload = { index: this.it.id - 1, value: this.displayScore }
                 store.commit('setScoreAndLock', payload)
+            } else if (
+                this.$store.state.scoreCard[this.it.id - 1].locked === true &&
+                this.it.unlockable === true
+            ) {
+                let payload = this.it.id - 1
+                store.commit('unlockItem', payload)
             }
         },
     },
+    // Visar möjlig score om item inte är låst i scoreCardet
+    // Visar annars scoren som ligger inlagd.
     template: `
-         <div v-bind:class="classObject" v-on:click="lockToScoreCard">
+         <div v-bind:class="classObject" v-on:click="toggleLockToScoreCard">
           <div class="fi">{{it.field}}</div>
           <div v-if="it.locked===false" class="vl">{{displayScore}}</div>
           <div v-else="it.locked===true" class="vl bold">{{displayScore}}</div>
@@ -408,28 +435,34 @@ Vue.component('scoreCard', {
 
 // Håller actionknappsfältet med roll knapp och hur många rolls det kvarfunktion
 const Actions = {
-  store,
-  computed: {
-      getOpenSlots() {
-          return this.$store.getters.getOpenSlots
-      },
-      getRollsLeft() {
-        return this.$store.state.rollsLeft
-      }
-  },
-  methods: {
-      rollDice() {
-        if (this.getRollsLeft>0){
-        store.commit('rollDice')
-        this.decrementRollsLeft()
+    store,
+    computed: {
+        getOpenSlots() {
+            return this.$store.getters.getOpenSlots
+        },
+        getRollsLeft() {
+            return this.$store.state.rollsLeft
+        },
+    },
+    methods: {
+        rollDice() {
+            if (this.getRollsLeft > 0) {
+                store.commit('rollDice')
+                this.decrementRollsLeft()
+            }
+        },
+        decrementRollsLeft() {
+            console.log('im running')
+            store.commit('decrementRollsLeft')
+        },
+        nextRound() {
+          //Nollar tärningarna så man inte kan klicka på något 
+          this.initDice()
+          //Fixar deeplock på det aktiva itemet i scorecardet och nollställer activeItemArrayen
+          
         }
-      },
-      decrementRollsLeft() {
-        console.log("im running")
-        store.commit('decrementRollsLeft')
-      }
-  },
-  template: `
+    },
+    template: `
         <div class="action-holder">
         <div class="roll" v-on:click="rollDice">roll {{getRollsLeft}}</div>
         <div class="next">next</div>
@@ -486,6 +519,7 @@ const app = new Vue({
                         field: fieldArray[index],
                         value: 0,
                         locked: true,
+                        unlockable: false,
                     })
                 } else {
                     store.state.scoreCard.push({
@@ -493,6 +527,7 @@ const app = new Vue({
                         field: fieldArray[index],
                         value: 0,
                         locked: false,
+                        unlockable: true,
                     })
                 }
             }
