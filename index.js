@@ -4,6 +4,7 @@ const store = new Vuex.Store({
         scoreCard: [],
         rollsLeft: 3,
         activeItem: [],
+        playedItems: [],
     },
     getters: {
         getOpenSlots: state => {
@@ -230,6 +231,7 @@ const store = new Vuex.Store({
         },
         toggleLockDice(state, payload) {
             let index = state.dice.findIndex(x => x.id === payload)
+            if (state.dice[index].value!=0)
             state.dice[index].locked = !state.dice[index].locked
         },
         setScoreAndLock(state, payload) {
@@ -248,7 +250,7 @@ const store = new Vuex.Store({
             ) {
                 state.scoreCard[payload].locked = false
                 state.scoreCard[payload].value = 0
-                state.activeItem.pop()
+               state.playedItems.push(state.activeItem.pop())
             }
         },
         deepLock(state) {
@@ -269,8 +271,13 @@ const store = new Vuex.Store({
         resetDice(state) {
             state.dice.forEach(d => {
                 d.value = 0
+                d.locked = false;
             })
         },
+        resetGame(state) {
+          state.playedItems.splice(0, array.length-1);
+          mutations.resetDice;
+        }
     },
 })
 
@@ -457,6 +464,11 @@ const Actions = {
         getRollsLeft() {
             return this.$store.state.rollsLeft
         },
+        activeItemExists() {
+          if (this.$store.state.activeItem.length>0)
+          return true;
+          else return false;
+        }
     },
     methods: {
         rollDice() {
@@ -479,8 +491,8 @@ const Actions = {
     },
     template: `
         <div class="action-holder">
-        <div class="roll" v-on:click="rollDice">roll {{getRollsLeft}}</div>
-        <div class="next" v-on:click="nextRound">next</div>
+        <div v-if="getRollsLeft!=0" class="roll" v-on:click="rollDice">roll {{getRollsLeft}}</div>
+        <div v-if="getRollsLeft!=3 && activeItemExists" class="next" v-on:click="nextRound">next</div>
         </div>
     `,
 }
