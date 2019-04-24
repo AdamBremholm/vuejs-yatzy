@@ -114,9 +114,7 @@ const store = new Vuex.Store({
             var results = 0
             for (var i = 0; i < getters.sortByDesDice.length - 1; i++) {
                 if (
-                    getters.sortByDesDice[i + 1] == getters.sortByDesDice[i] &&
-                    getters.sortByDesDice[i + 2] == getters.sortByDesDice[i + 1] &&
-                    getters.sortByDesDice[i + 3] == getters.sortByDesDice[i + 2]
+                    getters.sortByDesDice[i + 3] == getters.sortByDesDice[i]
                 ) {
                     results = getters.sortByDesDice[i]
                     break
@@ -129,10 +127,7 @@ const store = new Vuex.Store({
             for (var i = 0; i < getters.sortByDesDice.length - 1; i++) {
                 if (
                     getters.sortByDesDice[i] != 0 &&
-                    getters.sortByDesDice[i + 1] == getters.sortByDesDice[i] &&
-                    getters.sortByDesDice[i + 2] == getters.sortByDesDice[i + 1] &&
-                    getters.sortByDesDice[i + 3] == getters.sortByDesDice[i + 2] &&
-                    getters.sortByDesDice[i + 4] == getters.sortByDesDice[i + 3]
+                    getters.sortByDesDice[i + 4] == getters.sortByDesDice[i]
                 ) {
                     results = 50
                     break
@@ -146,9 +141,12 @@ const store = new Vuex.Store({
                 if (getters.sortByDesDice[i + 1] == getters.sortByDesDice[i]) {
                     results.push(getters.sortByDesDice[i])
                     results.push(getters.sortByDesDice[i + 1])
+                    i++;
                 }
             }
-            if (results.length > 3) {
+            //Kollar att det är två par
+            if (results.length > 3 && results[0] != results[3]) {
+
                 //Metod för att addera alla värden i results arrayen. Kollar att längden är större än 4 eller högre så vi vet att det
                 //är två-par
                 return results.reduce((partial_sum, a) => partial_sum + a)
