@@ -183,7 +183,6 @@
 }
 .bold {
   font-weight: bold;
-  border: 1px solid orange;
 }
 
 .dice-holder {
@@ -213,8 +212,16 @@
   min-height: 90%;
   
 }
+.orange-border {
+  border: 1px solid rgb(226, 116, 43);
+}
+
+.orange-background {
+  background-color: orange;
+}
+
 .orange {
-  border: 1px solid orange;
+  color: rgb(226, 116, 43);
 }
 
 .di1 {
@@ -249,6 +256,19 @@
   grid-template-areas: "ro ne";
 }
 
+ah-one-slot {
+  grid-area: ah;
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+  background-color: #fff;
+  color: black;
+  border: 1px solid black;
+  padding: 3px;
+  grid-template-areas: "if";
+}
+
 .roll {
   grid-area: ro;
   display: flex;
@@ -268,3 +288,15 @@
   border-radius: 5px;
   padding: 5px;
 }
+
+.info {
+  grid-area: if;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid black;
+  border-radius: 5px;
+  padding: 5px;
+  background-color: #fff;
+}
+
