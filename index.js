@@ -476,18 +476,25 @@ const Actions = {
       else return false;
     },
     ahOneSlot() {
-      if(this.getRollsLeft === 0 && !this.activeItemExists)
-      return true
-      else return false
+      if (!this.activeItemExists || this.getRollsLeft===0 || this.getRollsLeft===3) return true;
+      else return false;
     },
     ahTwoSlot() {
-        return !this.ahOneSlot
+      return !this.ahOneSlot;
+    },
+    activeItem() {
+      return this.$store.state.activeItem;
     }
   },
 
   methods: {
     rollDice() {
       if (this.getRollsLeft > 0) {
+          // Rensar locked tärning om man rollar tärningen
+        if (this.activeItemExists) {
+          store.commit("unlockItem", this.activeItem[0].id-1);
+        }
+
         store.commit("rollDice");
         this.decrementRollsLeft();
       }
@@ -506,9 +513,13 @@ const Actions = {
   },
   template: `
   <div v-bind:class="{'ah-one-slot' : ahOneSlot, 'action-holder' : ahTwoSlot}"> 
-            <div v-if="ahOneSlot" class="info"> Assign your slot before continueing</div>
-            <div v-if="getRollsLeft!=0" class="roll" v-on:click="rollDice">roll {{getRollsLeft}}</div>
-            <div v-if="getRollsLeft!=3 && activeItemExists" class="next" v-on:click="nextRound">next</div>     
+            <div v-if="!activeItemExists && getRollsLeft===0" class="info"> Assign your slot before continueing</div>
+            <div v-else-if="ahOneSlot && getRollsLeft!=0" class="info" v-on:click="rollDice">roll {{getRollsLeft}}</div>
+            <div v-else-if="getRollsLeft===0 && activeItemExists" class="info" v-on:click="nextRound">Play</div>
+
+            <div v-if="activeItemExists && getRollsLeft!=0" class="roll" v-on:click="rollDice">roll {{getRollsLeft}}</div>
+            <div v-if="getRollsLeft!=3 && getRollsLeft!=0 && activeItemExists" class="next" v-on:click="nextRound">Play</div>
+               
    </div>
   
     `
