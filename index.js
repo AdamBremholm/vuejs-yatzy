@@ -3,10 +3,19 @@ const store = new Vuex.Store({
     dice: [],
     scoreCard: [],
     rollsLeft: 3,
-    activeItem: [],
-    playedItems: []
+    activeItem: []
   },
   getters: {
+
+    activeItemId : (state, getters) => {
+      if (getters.activeItemExists)
+      return state.activeItem[0].id
+      else return -1;
+    },
+    activeItemExists : state => {
+      if (state.activeItem.length > 0) return true;
+      else return false;
+    },
     getOpenSlots: state => {
       return state.scoreCard.filter(item => item.value === 0);
     },
@@ -236,6 +245,7 @@ const store = new Vuex.Store({
         state.scoreCard[payload.index].value = payload.value;
         state.scoreCard[payload.index].locked = true;
         state.activeItem.push(state.scoreCard[payload.index]);
+        //Tar bort activeitem från scorecardet och lägger in det nya itemet.
       }
     },
     //kollar att itemet som ska låsas upp matchas med den som ligger i activeItem. Låser upp, nollar och tar bort activeItemen från arrayen
@@ -246,7 +256,7 @@ const store = new Vuex.Store({
       ) {
         state.scoreCard[payload].locked = false;
         state.scoreCard[payload].value = 0;
-        state.playedItems.push(state.activeItem.pop());
+        state.activeItem.pop();
       }
     },
     deepLock(state) {
@@ -271,7 +281,6 @@ const store = new Vuex.Store({
       });
     },
     resetGame(state) {
-      state.playedItems.splice(0, array.length - 1);
       mutations.resetDice;
     }
   }
@@ -286,7 +295,7 @@ const Header = {
       return this.$store.getters.calculateTotalScore;
     }
   },
-  template: `<div>Yatzy --- Score: {{totalScore}} ---
+  template: `<div class="header">Yatzy --- Score: {{totalScore}} ---
       </div>`
 };
 
@@ -378,6 +387,8 @@ const Item = {
     } else 
     return this.$store.state.scoreCard[this.it.id-1].value;
     },
+      activeItemId() {return this.$store.getters.activeItemId},
+      activeItemExists() {return this.$store.getters.activeItemExists},
       calculateNumbersOne() {return this.$store.getters.calculateNumbers(1)},
       calculateNumbersTwo() {return this.$store.getters.calculateNumbers(2)},
       calculateNumbersThree() {return this.$store.getters.calculateNumbers(3)},
@@ -401,25 +412,28 @@ const Item = {
      
   },
   methods: {
-    // Kollar först att det finns tärningar så att man inte lockar innan man har rollat
-    // Lägger in värdet och låser och upplåst, om låst kollar att den är unlockable,
-    // Låser upp och kör unlockitem som återställer itemet i scorecardet och återställer vårt aktiva item.
+    // 1. Kollar först att det finns tärningar så att man inte lockar innan man har rollat
+    // 2. Ser om det redan finns ett activeItem och att det inte är samma id som det man klickade på, isåfall låser den upp det först innan den lägger in det nya.
+    // 3. Lägger in värdet med setScoreAndLock
+    // 4. Om det är samma id på det aktiva itemet som det man klickar på vill vi enbart låsa upp fältet och inte lägga in något nytt. 
     toggleLockToScoreCard() {
       if (this.getRollsLeft != 3) {
+        if (this.activeItemExists && this.activeItemId != this.it.id) {
+          let index = this.activeItemId - 1;
+          store.commit("unlockItem", index);
+        }
         if (this.$store.state.scoreCard[this.it.id - 1].locked === false) {
           let payload = { index: this.it.id - 1, value: this.displayScore };
           store.commit("setScoreAndLock", payload);
-        } else if (
-          this.$store.state.scoreCard[this.it.id - 1].locked === true &&
-          this.it.unlockable === true
-        ) {
-          let payload = this.it.id - 1;
-          store.commit("unlockItem", payload);
+        } 
+        else if(this.activeItemExists && this.activeItemId === this.it.id) {
+          let index = this.activeItemId - 1;
+          store.commit("unlockItem", index);
         }
       }
     }
   },
-  //Visar field med vanlig text
+  // Visar field med vanlig text
   // Om det är tre rolls kvar( inte  ska gå att setta något i scorecard, visa inga feta siffror)
   // Om item inte är låst, visar bold vilket vetyder att det går att klicka på den
   // Om item är selectable false (fält som inte går att trycka på), displayas de vanligt
@@ -476,7 +490,12 @@ const Actions = {
       else return false;
     },
     ahOneSlot() {
-      if (!this.activeItemExists || this.getRollsLeft===0 || this.getRollsLeft===3) return true;
+      if (
+        !this.activeItemExists ||
+        this.getRollsLeft === 0 ||
+        this.getRollsLeft === 3
+      )
+        return true;
       else return false;
     },
     ahTwoSlot() {
@@ -490,9 +509,9 @@ const Actions = {
   methods: {
     rollDice() {
       if (this.getRollsLeft > 0) {
-          // Rensar locked tärning om man rollar tärningen
+        // Rensar locked tärning om man rollar tärningen
         if (this.activeItemExists) {
-          store.commit("unlockItem", this.activeItem[0].id-1);
+          store.commit("unlockItem", this.activeItem[0].id - 1);
         }
 
         store.commit("rollDice");
