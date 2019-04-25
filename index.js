@@ -83,13 +83,7 @@ const store = new Vuex.Store({
       return result;
     },
     calculateBonus: (state, getters) => {
-      if (
-        !getters.scoreCardValuesForNumbers.length === 0 &&
-        getters.scoreCardValuesForNumbers.reduce(
-          (partial_sum, a) => partial_sum + a
-        ) >= 63
-      )
-        return 50;
+      if (getters.calculatePartialScore >= 63) return 50;
       else return 0;
     },
     //Räknar ut värdet på par genom att gå igenom den sorterade arrayen och se om samma tal finns efter.
@@ -355,6 +349,9 @@ const Item = {
   // prettier-ignore
   computed: {
     classObject: function() {
+      if (this.isInfo){
+       return "rr " + "rw" + this.it.id;
+      }else
       return "rw " + "rw" + this.it.id;
     },
     //Kollar att scorecardet så att värdet inte är låst. Släpper dock igenom summa, bonus och total eftersom dessa alltid ska räknas ut.
@@ -378,7 +375,6 @@ const Item = {
         case "kåk" : return this.calculateFullHouse
         case "chans" :return this.calculateChance
         case "yatzy" : return this.calculateYatzy
-        case "total" : return this.calculateTotalScore
         default: return 0
       }
       
@@ -403,10 +399,11 @@ const Item = {
       calculateSmallStraight() {return this.$store.getters.calculateStraight("small")},
       calculateLargeStraight() {return this.$store.getters.calculateStraight("large")},
       calculateYatzy() {return this.$store.getters.calculateYatzy},
-      calculatePartialScore() {return this.$store.getters.calculatePartialScore},
+      calculatePartialScore() {return this.$store.getters.calculatePartialScore + "/63"},
       calculateTotalScore() {return this.$store.getters.calculateTotalScore},
       calculateChance() {return this.$store.getters.calculateChance},
-      getRollsLeft() { return this.$store.state.rollsLeft}
+      getRollsLeft() { return this.$store.state.rollsLeft},
+      isInfo() {return (this.it.field === "info") ? true : false}
      
   },
   methods: {
@@ -438,13 +435,15 @@ const Item = {
   // Annars visa det nuvarande itemet med orange border.
   template: `
          <div v-bind:class="classObject" v-on:click="toggleLockToScoreCard">
-          <div class="fi">{{it.field}}</div>
-          <div v-if="getRollsLeft===3 && it.locked===true" class="vl">{{displayScore}}</div>
-          <div v-else-if="getRollsLeft===3 && it.locked===false" class="vl bold orange">{{displayScore}}</div>
-          <div v-else-if="it.locked===false" class="vl bold orange">{{displayScore}}</div>
-          <div v-else-if="it.selectable===false" class="vl">{{displayScore}}</div>
-          <div v-else-if="it.unlockable===false" class="vl">{{displayScore}}</div>
-          <div v-else class="vl orange-background">{{displayScore}}</div>
+          <div v-if="!isInfo" class="fi">{{it.field}}</div>
+          <div v-else-if="isInfo">Get 63p in this column to unlock 50p bonus!</div>
+
+          <div v-if="!isInfo && getRollsLeft===3 && it.locked===true" class="vl">{{displayScore}}</div>
+          <div v-else-if="!isInfo && getRollsLeft===3 && it.locked===false" class="vl bold orange">{{displayScore}}</div>
+          <div v-else-if="!isInfo && it.locked===false" class="vl bold orange">{{displayScore}}</div>
+          <div v-else-if="!isInfo && it.selectable===false" class="vl">{{displayScore}}</div>
+          <div v-else-if="!isInfo && it.unlockable===false" class="vl">{{displayScore}}</div>
+          <div v-else-if="!isInfo" class="vl orange-background">{{displayScore}}</div>
           </div>
       `
 };
@@ -566,6 +565,7 @@ const app = new Vue({
         "sexor",
         "del-summa",
         "bonus",
+        "info",
         "par",
         "två-par",
         "triss",
@@ -574,8 +574,7 @@ const app = new Vue({
         "stor-stege",
         "kåk",
         "chans",
-        "yatzy",
-        "total"
+        "yatzy"
       ];
       //Lägger så att bonus del-summa och totalt är låsta.
       for (let index = 0; index < fieldArray.length; index++) {
@@ -583,7 +582,7 @@ const app = new Vue({
         if (
           fieldArray[index] === "bonus" ||
           fieldArray[index] === "del-summa" ||
-          fieldArray[index] === "total"
+          fieldArray[index] === "info"
         ) {
           store.state.scoreCard.push({
             id: indexPlusOne,
