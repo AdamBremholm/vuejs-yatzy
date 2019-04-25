@@ -56,15 +56,16 @@
     );
   grid-template-areas:
     "cb1 vl1 cb2 vl2"
-    "rw1 rw1 rw10 rw10"
-    "rw2 rw2 rw11 rw11"
-    "rw3 rw3 rw12 rw12"
-    "rw4 rw4 rw13 rw13"
-    "rw5 rw5 rw14 rw14"
-    "rw6 rw6 rw15 rw15"
-    "rw7 rw7 rw16 rw16"
-    "rw8 rw8 rw17 rw17"
-    "rw9 rw9 rw18 rw18";
+    "rw1 rw1 rw9 rw9"
+    "rw2 rw2 rw10 rw10"
+    "rw3 rw3 rw11 rw11"
+    "rw4 rw4 rw12 rw12"
+    "rw5 rw5 rw13 rw13"
+    "rw6 rw6 rw14 rw14"
+    "rw7 rw7 rw15 rw15"
+    "rw8 rw8 rw16 rw16"
+    ". . rw17 rw17"
+    ". . rw18 rw18";
 }
 
 .rw {

@@ -6,13 +6,11 @@ const store = new Vuex.Store({
     activeItem: []
   },
   getters: {
-
-    activeItemId : (state, getters) => {
-      if (getters.activeItemExists)
-      return state.activeItem[0].id
+    activeItemId: (state, getters) => {
+      if (getters.activeItemExists) return state.activeItem[0].id;
       else return -1;
     },
-    activeItemExists : state => {
+    activeItemExists: state => {
       if (state.activeItem.length > 0) return true;
       else return false;
     },
@@ -415,7 +413,7 @@ const Item = {
     // 1. Kollar först att det finns tärningar så att man inte lockar innan man har rollat
     // 2. Ser om det redan finns ett activeItem och att det inte är samma id som det man klickade på, isåfall låser den upp det först innan den lägger in det nya.
     // 3. Lägger in värdet med setScoreAndLock
-    // 4. Om det är samma id på det aktiva itemet som det man klickar på vill vi enbart låsa upp fältet och inte lägga in något nytt. 
+    // 4. Om det är samma id på det aktiva itemet som det man klickar på vill vi enbart låsa upp fältet och inte lägga in något nytt.
     toggleLockToScoreCard() {
       if (this.getRollsLeft != 3) {
         if (this.activeItemExists && this.activeItemId != this.it.id) {
@@ -425,8 +423,7 @@ const Item = {
         if (this.$store.state.scoreCard[this.it.id - 1].locked === false) {
           let payload = { index: this.it.id - 1, value: this.displayScore };
           store.commit("setScoreAndLock", payload);
-        } 
-        else if(this.activeItemExists && this.activeItemId === this.it.id) {
+        } else if (this.activeItemExists && this.activeItemId === this.it.id) {
           let index = this.activeItemId - 1;
           store.commit("unlockItem", index);
         }
