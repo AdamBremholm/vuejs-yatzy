@@ -8,13 +8,13 @@
   justify-content: center;
   align-items: center;
   background-color: blanchedalmond;
-  height: 93vh;
-  width: 97vw;
+  height: minmax(auto, 93vh);
+  width: minmax(auto, 97vw);
   overflow-x: hidden;
   overflow-y: hidden;
   grid-row-gap: 3px;
   grid-column-gap: 5px;
-  grid-template-columns: auto;
+  grid-template-columns: minmax(auto, 97vw);
   grid-template-rows: 1fr 6fr 1fr 1fr;
   grid-template-areas:
     "head"
