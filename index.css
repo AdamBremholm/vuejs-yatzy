@@ -1,8 +1,15 @@
+/*--------------------------------------------------MOBILE--------------------------------------------------------------------------------------------*/
+
+
+@media only screen and (max-width: 600px) {
+
 .hidden {
   visibility: hidden;
 }
 
 .container {
+  margin-left: 1vw;
+  margin-right: 1vw;
   border-radius: 5px;
   display: grid;
   justify-content: center;
@@ -36,11 +43,12 @@
 
   border-radius: 5px;
 }
+.sidebar {
+  visibility: hidden;
+}
 
 .score-card {
   grid-area: sc;
-  margin-left: 1vw;
-  margin-right: 1vw;
   padding: 2vw;
   display: grid;
   justify-content: center;
@@ -307,3 +315,332 @@ ah-one-slot {
   background-color: #fff;
 }
 
+}
+
+/*--------------------------------------------------DESKTOP--------------------------------------------------------------------------------------------*/
+
+
+@media only screen and (min-width: 600px) {
+
+  .hidden {
+    visibility: hidden;
+  }
+  
+  .container {
+    margin-left: 1vw;
+    margin-right: 1vw;
+    border-radius: 5px;
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    background-color: blanchedalmond;
+    height: 93vh;
+    width: 97vw;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    grid-row-gap: 3px;
+    grid-column-gap: 5px;
+    grid-template-columns: minmax(200, 1fr), minmax(150, 2fr);
+    grid-template-rows: 1fr 6fr 1fr 1fr;
+    grid-template-areas:
+      "sidebar head"
+      "sidebar sc"
+      "sidebar dh"
+      "sidebar ah";
+  }
+  
+  .header {
+    grid-area: head;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: white;
+    color: black;
+    border: 1px solid black;
+    font-weight: bold;
+    font-size: large;
+    border-radius: 5px;
+  }
+
+  .sidebar {
+    grid-area: sidebar;
+    height: 95%;
+    width: 100%;
+    background: white;
+    color: black;
+    border: 1px solid black;
+    border-radius: 5px;
+
+  }
+  
+  .score-card {
+    grid-area: sc;
+    padding: 2vw;
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    background: white;
+    border: 1px solid black;
+    border-radius: 5px;
+    grid-row-gap: 5px;
+    grid-column-gap: 5px;
+    grid-template-columns: minmax(100px, 2fr) minmax(15px, 1fr) minmax(100px, 2fr) minmax(
+        15px,
+        1fr
+      );
+    grid-template-areas:
+      "cb1 vl1 cb2 vl2"
+      "rw1 rw1 rw10 rw10"
+      "rw2 rw2 rw11 rw11"
+      "rw3 rw3 rw12 rw12"
+      "rw4 rw4 rw13 rw13"
+      "rw5 rw5 rw14 rw14"
+      "rw6 rw6 rw15 rw15"
+      "rw7 rw7 rw16 rw16"
+      "rw8 rw8 rw17 rw17"
+      "rw9 rw9 rw18 rw18";
+  }
+  
+  .rw {
+    display: grid;
+    background-color: #fff;
+    color: black;
+    border-radius: 5px;
+    padding: 3px;
+    grid-template-columns: minmax(100px, 2fr) minmax(15px, 1fr);
+    grid-row-gap: 3px;
+    grid-column-gap: 5px;
+    grid-template-areas: "fi vl";
+  }
+  
+  .rr {
+    grid-area: rr;
+    padding: 3px;
+    font-style: italic;
+  }
+  
+  .rw1 {
+    grid-area: rw1;
+  }
+  .rw2 {
+    grid-area: rw2;
+  }
+  .rw3 {
+    grid-area: rw3;
+  }
+  .rw4 {
+    grid-area: rw4;
+  }
+  .rw5 {
+    grid-area: rw5;
+  }
+  .rw6 {
+    grid-area: rw6;
+  }
+  .rw7 {
+    grid-area: rw7;
+  }
+  .rw8 {
+    grid-area: rw8;
+  }
+  .rw9 {
+    grid-area: rw9;
+  }
+  .rw10 {
+    grid-area: rw10;
+  }
+  .rw11 {
+    grid-area: rw11;
+  }
+  .rw12 {
+    grid-area: rw12;
+  }
+  .rw13 {
+    grid-area: rw13;
+  }
+  .rw14 {
+    grid-area: rw14;
+  }
+  .rw15 {
+    grid-area: rw15;
+  }
+  .rw16 {
+    grid-area: rw16;
+  }
+  .rw17 {
+    grid-area: rw17;
+  }
+  .rw18 {
+    grid-area: rw18;
+  }
+  
+  
+  .cbvl {
+    display: flex;
+    background-color: #fff;
+    color: black;
+    border-radius: 5px;
+    grid-row-gap: 3px;
+    grid-column-gap: 5px;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+  }
+  
+  .cb1 {
+    grid-area: cb1;
+  }
+  
+  .cb2 {
+    grid-area: cb2;
+  }
+  
+  .vl1 {
+    grid-area: vl1;
+  }
+  
+  .vl2 {
+    grid-area: vl2;
+  }
+  
+  .fi {
+    grid-area: fi;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 3px;
+  }
+  
+  .vl {
+    grid-area: vl;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 3px;
+  }
+  .bold {
+    font-weight: bold;
+  }
+  
+  .dice-holder {
+    grid-area: dh;
+    justify-content: center;
+    align-items: center;
+    display: grid;
+    background-color: #fff;
+    color: black;
+    border-radius: 5px;
+    padding: 3px;
+    border: 1px solid black;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    grid-template-rows: minmax(50px, 1fr);
+    grid-row-gap: 3px;
+    grid-column-gap: 5px;
+    grid-template-areas: "di1 di2 di3 di4 di5";
+  }
+  
+  .di {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid black;
+    font-size: xx-large;
+    border-radius: 5px;
+    min-height: 90%;
+    
+  }
+  .orange-border {
+    border: 1px solid rgb(226, 116, 43);
+  }
+  
+  .orange-background {
+    background-color: orange;
+  }
+  
+  .orange {
+    color: rgb(226, 116, 43);
+  }
+  
+  .di1 {
+    grid-area: di1;
+  }
+  .di2 {
+    grid-area: di2;
+  }
+  .di3 {
+    grid-area: di3;
+  }
+  .di4 {
+    grid-area: di4;
+  }
+  .di5 {
+    grid-area: di5;
+  }
+  
+  .action-holder {
+    grid-area: ah;
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    background-color: #fff;
+    color: black;
+    border: 1px solid black;
+    padding: 3px;
+    grid-column-gap: 50px;
+    grid-template-columns: minmax(50px, 1fr) minmax(50px, 1fr);
+    grid-template-rows: minmax(30px, 1fr);
+    grid-template-areas: "ro ne";
+  }
+  
+  ah-one-slot {
+    grid-area: ah;
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    background-color: #fff;
+    color: black;
+    border: 1px solid black;
+    padding: 3px;
+    grid-template-areas: "if";
+  }
+  
+  .roll {
+    grid-area: ro;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 5px;
+  }
+  
+  .next {
+    grid-area: ne;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 5px;
+  }
+  
+  .info {
+    grid-area: if;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 5px;
+    background-color: #fff;
+  }
+  
+  }
+
+}

@@ -300,6 +300,12 @@ const Header = {
       </div>`
 };
 
+const Sidebar = {
+
+
+  template: `<div class="sidebar"> Sidebar </div>`  
+}
+
 // Skriver ut varje tärning i tärningsfältet, ska även hålla design för tärningarna
 const Die = {
   props: ["di"],
@@ -714,6 +720,7 @@ const app = new Vue({
   components: {
     "dice-holder": DiceHolder,
     "action-holder": Actions,
-    "header-holder": Header
+    "header-holder": Header,
+    "sidebar-holder" : Sidebar
   }
 });
