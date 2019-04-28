@@ -303,7 +303,7 @@ const Header = {
       return this.$store.getters.calculateTotalScore;
     }
   },
-  template: `<div class="header">Yatzy --- Score: {{totalScore}} ---
+  template: `<div class="header">Adams Yatzy App | Score: {{totalScore}} 
       </div>`
 };
 
@@ -642,12 +642,12 @@ const Actions = {
     }
   },
   template: `
-  <div v-bind:class="{'ah-one-slot' : ahOneSlot, 'action-holder' : ahTwoSlot}"> 
+  <div v-bind:class="{'ah-one-slot black-border' : ahOneSlot, 'action-holder' : ahTwoSlot}"> 
             <div v-if="!activeItemExists && getRollsLeft===0" class="info"> Assign your slot before continueing</div>
-            <div v-else-if="ahOneSlot && getRollsLeft!=0" class="info" v-on:click="rollDice" v-on:keyup.enter="rollDice">roll {{getRollsLeft}}</div>
+            <div v-else-if="ahOneSlot && getRollsLeft!=0" class="info" v-on:click="rollDice" v-on:keyup.enter="rollDice">roll: {{getRollsLeft}} left</div>
             <div v-else-if="getRollsLeft===0 && activeItemExists" class="info" v-on:click="nextRound">Play</div>
 
-            <div v-if="activeItemExists && getRollsLeft!=0" class="roll" v-on:click="rollDice">roll {{getRollsLeft}}</div>
+            <div v-if="activeItemExists && getRollsLeft!=0" class="roll" v-on:click="rollDice">roll: {{getRollsLeft}} left</div>
             <div v-if="getRollsLeft!=3 && getRollsLeft!=0 && activeItemExists" class="next" v-on:click="nextRound">Play</div>
                
    </div>`
