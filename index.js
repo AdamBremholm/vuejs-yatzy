@@ -237,10 +237,8 @@ const store = new Vuex.Store({
       }
     },
     toggleIsMobile(state, payload) {
-      if(payload===true)
-      state.isMobile = true;
-      else
-      state.isMobile = false;
+      if (payload === true) state.isMobile = true;
+      else state.isMobile = false;
     },
     toggleLockDice(state, payload) {
       let index = state.dice.findIndex(x => x.id === payload);
@@ -326,8 +324,6 @@ const HeaderMobile = {
 };
 
 const Sidebar = {
-
- 
   template: `<div class="sidebar"> 
   <div class="rules">
   <h1>Spelregler</h1>
@@ -348,8 +344,8 @@ const Sidebar = {
   </ul>
   </div class="rules">
   
-  </div>`  
-}
+  </div>`
+};
 
 // Skriver ut varje tärning i tärningsfältet, ska även hålla design för tärningarna
 const Die = {
@@ -372,7 +368,6 @@ const Die = {
       else if (this.di.value === 5) return "&#9860;";
       else if (this.di.value === 6) return "&#9861;";
       else return "";
-    }
   },
   methods: {
     toggleLockDice(id) {
@@ -383,6 +378,54 @@ const Die = {
   template: `<div v-bind:class="classObject" v-html="getDieUnicode" v-on:click="toggleLockDice(id)">
       </div>
       `
+}
+}
+
+const DieDesign = {
+  data: {
+    die1: {
+      svg: {
+        width: 557,
+        height: 557
+      },
+      rect: {
+        x: 4,
+        y: 4,
+        width: 549,
+        height: 549,
+        rx: 68,
+        fill: "none",
+        stroke: "#000",
+        strokeWidth: 7
+      },
+      circle: {
+        fill: "#FF724C",
+        stroke: "#700",
+        strokeWidth: 5,
+        cx: 278,
+        cy: 278,
+        r: 57
+      }
+    }
+  },
+  template: ` 
+<template>
+  <svg xmlns="http://www.w3.org/2000/svg"
+    :width="width"
+    :height="height"
+    viewBox="0 0 18 18"
+    :aria-labelledby="iconName"
+    role="presentation"
+  >
+    <title
+      :id="iconName"
+      lang="en"
+    >{{ iconName }} icon</title>
+    <g :fill="iconColor">
+      <slot />
+    </g>
+  </svg>
+</template>`
 };
 
 //Ska skriva ut de rullade tärningarna längst ner i appen
@@ -654,7 +697,6 @@ const Actions = {
 };
 
 const RulesMobile = {
-
   template: ` <div>
   <div class="rule-nav">
   <p>
@@ -668,14 +710,13 @@ const RulesMobile = {
   `,
 
   components: {
-    "sidebar-holder" : Sidebar,
+    "sidebar-holder": Sidebar
   }
-}
+};
 
 const Container = {
-  
   computed: {
-    isMobile(){
+    isMobile() {
       return this.$store.state.isMobile;
     }
   },
@@ -694,20 +735,19 @@ const Container = {
     "action-holder": Actions,
     "header-holder": Header,
     "header-holder-mobile": HeaderMobile,
-    "sidebar-holder" : Sidebar,
-    "rules-mobile" : RulesMobile
+    "sidebar-holder": Sidebar,
+    "rules-mobile": RulesMobile
   }
-}
+};
 
 const routes = [
-  { path: '/rules', component: RulesMobile },
-  { path: '/', component: Container }
-]
+  { path: "/rules", component: RulesMobile },
+  { path: "/", component: Container }
+];
 
 const router = new VueRouter({
   routes
-  
-})
+});
 
 const app = new Vue({
   store: store,
@@ -717,21 +757,19 @@ const app = new Vue({
     activeItemExists() {
       return this.$store.getters.activeItemExists;
     },
-    isMobile(){
+    isMobile() {
       return this.$store.state.isMobile;
     }
-  
   },
   methods: {
-
     detectMobile() {
-      if(window.innerWidth <= 600) {
-        store.commit('toggleIsMobile', true)
+      if (window.innerWidth <= 600) {
+        store.commit("toggleIsMobile", true);
       } else {
-        store.commit('toggleIsMobile', false)
-     }
-  },
-    
+        store.commit("toggleIsMobile", false);
+      }
+    },
+
     //Lägger in 5 tärningar i vuex store
     initDice() {
       for (let index = 0; index < 5; index++) {
@@ -778,12 +816,18 @@ const app = new Vue({
 
     startResizeListener() {
       var current = this;
-      window.addEventListener("resize", ()=> {
-        if(current.$store.state.isMobile===false && window.innerWidth <= 600 ) {
-          store.commit('toggleIsMobile', true)
-        } else if (current.$store.state.isMobile===true && window.innerWidth > 600) {
-          store.commit('toggleIsMobile', false)
-       }
+      window.addEventListener("resize", () => {
+        if (
+          current.$store.state.isMobile === false &&
+          window.innerWidth <= 600
+        ) {
+          store.commit("toggleIsMobile", true);
+        } else if (
+          current.$store.state.isMobile === true &&
+          window.innerWidth > 600
+        ) {
+          store.commit("toggleIsMobile", false);
+        }
       });
     },
 
@@ -844,16 +888,13 @@ const app = new Vue({
     this.startKeyEventListener();
     this.detectMobile();
     this.startResizeListener();
-    
   },
   components: {
     "dice-holder": DiceHolder,
     "action-holder": Actions,
     "header-holder": Header,
     "header-holder-mobile": HeaderMobile,
-    "sidebar-holder" : Sidebar,
-    "container-holder" : Container
+    "sidebar-holder": Sidebar,
+    "container-holder": Container
   }
 });
-
-

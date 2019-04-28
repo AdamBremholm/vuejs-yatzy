@@ -676,6 +676,47 @@
     font-size: large;
    
   }
+
+  .die { /* HTML symbols */
+    font-size: 100px;
+    font-weight: 800;
+  }
+
+  .die::after {
+    content:'';
+    animation-name: rolling;
+    animation-duration: 1s;
+    animation-timing-function: ease-in-out;
+    animation-delay: 0s;
+    animation-iteration-count: 1;
+    animation-direction: alternate-reverse
+  }
+
+  @keyframes rolling {
+    0% {content:'\2680';}
+    20% {content:'\2681';}
+    40% {content:'\2682';}
+    60% {content:'\2683';}
+    80% {content:'\2684';}
+    100% {content:'\2685';}
+  }
+
+  .die:nth-child(2n-1) {
+
+    animation-delay: 1s;
+  }
+  .die:nth-child(2n) {
+    animation-delay: 2s;
+  }
+  .die:nth-child(3n) {
+    animation-delay: 3s;
+  }
+  .die:nth-child(5n) {
+    animation-delay: 5s;
+  }
+  .die:nth-child(7n) {
+    animation-delay: 0s;
+  }
   
   }
 
