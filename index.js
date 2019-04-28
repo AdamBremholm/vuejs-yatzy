@@ -224,7 +224,7 @@ const store = new Vuex.Store({
       if (state.rollsLeft > 0) {
         // Rensar locked tärning om man rollar tärningen
         if (store.getters.activeItemExists) {
-          store.commit("unlockItem", this.activeItem[0].id - 1);
+          store.commit("unlockItem", state.activeItem[0].id - 1);
         }
 
         state.dice.forEach(d => {
