@@ -9,18 +9,12 @@
     <link rel="stylesheet" href="index.css">
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://unpkg.com/vuex@3.0.1/dist/vuex.js"></script>
+    <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
 </head>
 
 <body>
     <div id="app">
-            <section class="container">
-                    <header-holder>Yatzy, Totals. </header-holder>
-                    <sidebar-holder></sidebar-holder>
-                    <score-card>Score Card</score-card>
-                    <dice-holder>Dice Holder</dice-holder>
-                    <action-holder>Action Holder</action-holder>
-                    
-            </section>
+            <router-view></router-view>
     </div>
 </body>
 

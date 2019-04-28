@@ -3,7 +3,8 @@ const store = new Vuex.Store({
     dice: [],
     scoreCard: [],
     rollsLeft: 3,
-    activeItem: []
+    activeItem: [],
+    isMobile: false
   },
   getters: {
     activeItemId: (state, getters) => {
@@ -235,6 +236,12 @@ const store = new Vuex.Store({
         store.commit("decrementRollsLeft");
       }
     },
+    toggleIsMobile(state, payload) {
+      if(payload===true)
+      state.isMobile = true;
+      else
+      state.isMobile = false;
+    },
     toggleLockDice(state, payload) {
       let index = state.dice.findIndex(x => x.id === payload);
       if (state.dice[index].value != 0)
@@ -300,10 +307,45 @@ const Header = {
       </div>`
 };
 
+const HeaderMobile = {
+  computed: {
+    scoreCard() {
+      return this.$store.state.scoreCard;
+    },
+    totalScore() {
+      return this.$store.getters.calculateTotalScore;
+    }
+  },
+  template: `<div class="header">Yatzy --- Score: {{totalScore}} ---<br>
+  <router-link to="/rules">Rules</router-link> |
+  <router-link to="/">Game</router-link>
+      </div>`
+};
+
 const Sidebar = {
 
+ 
+  template: `<div class="sidebar"> 
+  <div class="rules">
+  <h1>Spelregler</h1>
+  <p> Varje gång en spelare står i tur har denne rätt till tre tärningskast, dock behöver inte alla kast utnyttjas. Spelaren väljer själv vilka tärningar som skall kastas om, och poängsumman införs i ett protokoll. Varje rad i protokollet motsvarar en regel som tärningarna måste uppfylla för att räknas. Till exempel på raden "femmor" får man endast skriva in poängen från de tärningar som visar fem prickar.</p>
+  <p>Ordningen i protokollet behöver nödvändigtvis inte följas, men spelet blir dock mer slumpstyrt om protokollordningen följs. Denna typ av spel kallas "tvång". Spelet kan också spelas som "halvtvång". Då spelas övre delen av protokollet fritt och när alla spelare spelat klart den delen av halvan spelas undre delen av protokollet, och den totala poängsumman räknas sedan samman.</p>
+  <h2>Förklaringar</h2>
+  <ul>
+  <li>För att få bonus måste spelaren få minst 63 poäng i de sex översta villkoren (detta motsvarar i genomsnitt tre av varje villkor). Bonus ger alltid 50 poäng oavsett poängsumman.</li>
+  <li>För att få yatzy skall alla tärningarna visa lika siffror. Yatzy ger alltid 50 poäng oavsett vilken siffra som tärningarna visar.</li>
+  <li>För att få liten stege (stege ibland kallat straight[2]) skall tärningarna visa siffrorna 1, 2, 3, 4 och 5. Detta ger 15 poäng.</li>
+  <li>För att få stor stege skall tärningarna visa siffrorna 2, 3, 4, 5 och 6. Detta ger 20 poäng.</li>
+  <li>För att få kåk skall tre av tärningarna visa ett och samma tal, samtidigt som övriga två ska visa ett och samma tal. Exempelvis 6, 6, 6, 4 och 4.</li>
+  <li>Chans innebär att man ska få så högt tal som möjligt när samtliga tärningsprickar räknas samman.</li>
+  <li>Spelet har 15 villkor att uppfylla. Detta kan maximalt ge 374 poäng.
+  </li>
 
-  template: `<div class="sidebar"> Sidebar </div>`  
+
+  </ul>
+  </div class="rules">
+  
+  </div>`  
 }
 
 // Skriver ut varje tärning i tärningsfältet, ska även hålla design för tärningarna
@@ -608,15 +650,81 @@ const Actions = {
    </div>`
 };
 
+const RulesMobile = {
+
+  template: ` <div>
+  <router-link to="/rules">Rules</router-link> |
+  <router-link to="/">Game</router-link>
+  <sidebar-holder></sidebar-holder>
+  </div>
+  `,
+
+  components: {
+    "sidebar-holder" : Sidebar,
+  }
+}
+
+const Container = {
+  
+  computed: {
+    isMobile(){
+      return this.$store.state.isMobile;
+    }
+  },
+
+  template: `<section class="container">
+  <header-holder v-if="!isMobile">Yatzy, Totals. </header-holder>
+                <header-holder-mobile v-else>Yatzy, Totals. </header-holder-mobile>
+                <sidebar-holder v-if="!isMobile"></sidebar-holder>
+                <score-card>Score Card</score-card>
+                <dice-holder>Dice Holder</dice-holder>
+                <action-holder>Action Holder</action-holder>
+                </section>
+  `,
+  components: {
+    "dice-holder": DiceHolder,
+    "action-holder": Actions,
+    "header-holder": Header,
+    "header-holder-mobile": HeaderMobile,
+    "sidebar-holder" : Sidebar,
+    "rules-mobile" : RulesMobile
+  }
+}
+
+const routes = [
+  { path: '/rules', component: RulesMobile },
+  { path: '/', component: Container }
+]
+
+const router = new VueRouter({
+  routes
+  
+})
+
 const app = new Vue({
   store: store,
   el: "#app",
+  router,
   computed: {
     activeItemExists() {
       return this.$store.getters.activeItemExists;
+    },
+    isMobile(){
+      return this.$store.state.isMobile;
     }
+  
   },
   methods: {
+
+    detectMobile() {
+      console.log("detectmobile running")
+      if(window.innerWidth <= 600) {
+        store.commit('toggleIsMobile', true)
+      } else {
+        store.commit('toggleIsMobile', false)
+     }
+  },
+    
     //Lägger in 5 tärningar i vuex store
     initDice() {
       for (let index = 0; index < 5; index++) {
@@ -637,7 +745,7 @@ const app = new Vue({
         store.commit("restoreRollsLeft");
       }
     },
-    startEventListener() {
+    startKeyEventListener() {
       var current = this;
       window.addEventListener("keyup", function(event) {
         // Space för att rolla enter för att gå till nästa runda och siffror för att låsa tärningar.
@@ -658,6 +766,17 @@ const app = new Vue({
         } else if (event.key === "5") {
           store.commit("toggleLockDice", 4);
         }
+      });
+    },
+
+    startResizeListener() {
+      var current = this;
+      window.addEventListener("resize", ()=> {
+        if(current.$store.state.isMobile===false && window.innerWidth <= 600 ) {
+          store.commit('toggleIsMobile', true)
+        } else if (current.$store.state.isMobile===true && window.innerWidth > 600) {
+          store.commit('toggleIsMobile', false)
+       }
       });
     },
 
@@ -715,12 +834,17 @@ const app = new Vue({
   mounted() {
     this.initDice();
     this.initScoreCard();
-    this.startEventListener();
+    this.startKeyEventListener();
+    this.startResizeListener();
   },
   components: {
     "dice-holder": DiceHolder,
     "action-holder": Actions,
     "header-holder": Header,
-    "sidebar-holder" : Sidebar
+    "header-holder-mobile": HeaderMobile,
+    "sidebar-holder" : Sidebar,
+    "container-holder" : Container
   }
 });
+
+
