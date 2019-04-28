@@ -30,7 +30,8 @@
   
   .header {
     grid-area: head;
-    display: flex;
+    display: grid;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     background: white;
@@ -38,8 +39,29 @@
     border: 1px solid black;
     font-weight: bold;
     font-size: large;
-  
     border-radius: 5px;
+    grid-template-areas:
+      "title"
+      "nav";
+  }
+
+  .title {
+    grid-area: title;
+    text-align:center;
+    margin: 3px;
+  }
+  .nav {
+    grid-area: nav;
+    text-align:center;
+    margin: 3px;
+  }
+  .rule-nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: large;
+
   }
   
   
@@ -288,6 +310,8 @@
     border: 1px solid black;
     border-radius: 5px;
     padding: 5px;
+    font-weight: bold;
+    font-size: large;
   }
   
   .next {
@@ -298,6 +322,8 @@
     border: 1px solid black;
     border-radius: 5px;
     padding: 5px;
+    font-weight: bold;
+    font-size: large;
   }
   
   .info {
@@ -309,6 +335,8 @@
     border-radius: 5px;
     padding: 5px;
     background-color: #fff;
+    font-weight: bold;
+    font-size: large;
   }
   
   }
@@ -614,6 +642,8 @@
     border: 1px solid black;
     border-radius: 5px;
     padding: 5px;
+    font-weight: bold;
+    font-size: large;
   }
   
   .next {
@@ -624,6 +654,8 @@
     border: 1px solid black;
     border-radius: 5px;
     padding: 5px;
+    font-weight: bold;
+    font-size: large;
   }
   
   .info {
@@ -635,6 +667,8 @@
     border-radius: 5px;
     padding: 5px;
     background-color: #fff;
+    font-weight: bold;
+    font-size: large;
   }
   
   }

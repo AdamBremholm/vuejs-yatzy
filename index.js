@@ -316,9 +316,12 @@ const HeaderMobile = {
       return this.$store.getters.calculateTotalScore;
     }
   },
-  template: `<div class="header">Yatzy --- Score: {{totalScore}} ---<br>
+  template: `<div class="header">
+  <p class="title">Adams Yatzy App | Score: {{totalScore}} </p>
+  <p class="nav">
   <router-link to="/rules">Rules</router-link> |
   <router-link to="/">Game</router-link>
+  </p>
       </div>`
 };
 
@@ -653,8 +656,13 @@ const Actions = {
 const RulesMobile = {
 
   template: ` <div>
+  <div class="rule-nav">
+  <p>
   <router-link to="/rules">Rules</router-link> |
   <router-link to="/">Game</router-link>
+  </p>
+  </div>
+  
   <sidebar-holder></sidebar-holder>
   </div>
   `,
@@ -717,7 +725,6 @@ const app = new Vue({
   methods: {
 
     detectMobile() {
-      console.log("detectmobile running")
       if(window.innerWidth <= 600) {
         store.commit('toggleIsMobile', true)
       } else {
@@ -835,7 +842,9 @@ const app = new Vue({
     this.initDice();
     this.initScoreCard();
     this.startKeyEventListener();
+    this.detectMobile();
     this.startResizeListener();
+    
   },
   components: {
     "dice-holder": DiceHolder,
