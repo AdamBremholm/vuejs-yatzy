@@ -4,7 +4,8 @@ const store = new Vuex.Store({
     scoreCard: [],
     rollsLeft: 3,
     activeItem: [],
-    isMobile: false
+    isMobile: false,
+    rollAnimate: false,
   },
   getters: {
     activeItemId: (state, getters) => {
@@ -240,6 +241,9 @@ const store = new Vuex.Store({
       if (payload === true) state.isMobile = true;
       else state.isMobile = false;
     },
+    toggleRollAnimate(state) {
+      state.rollAnimate = !state.rollAnimate;
+    },
     toggleLockDice(state, payload) {
       let index = state.dice.findIndex(x => x.id === payload);
       if (state.dice[index].value != 0)
@@ -327,8 +331,8 @@ const Sidebar = {
   template: `<div class="sidebar"> 
   <div class="rules">
   <h1>Spelregler</h1>
-  <p> Varje gång en spelare står i tur har denne rätt till tre tärningskast, dock behöver inte alla kast utnyttjas. Spelaren väljer själv vilka tärningar som skall kastas om, och poängsumman införs i ett protokoll. Varje rad i protokollet motsvarar en regel som tärningarna måste uppfylla för att räknas. Till exempel på raden "femmor" får man endast skriva in poängen från de tärningar som visar fem prickar.</p>
-  <p>Ordningen i protokollet behöver nödvändigtvis inte följas, men spelet blir dock mer slumpstyrt om protokollordningen följs. Denna typ av spel kallas "tvång". Spelet kan också spelas som "halvtvång". Då spelas övre delen av protokollet fritt och när alla spelare spelat klart den delen av halvan spelas undre delen av protokollet, och den totala poängsumman räknas sedan samman.</p>
+  <p> Spelaren har rätt till tre tärningskast, dock behöver inte alla kast utnyttjas. Spelaren väljer själv vilka tärningar som skall kastas om, och poängsumman införs i ett protokoll. Varje rad i protokollet motsvarar en regel som tärningarna måste uppfylla för att räknas. Till exempel på raden "femmor" får man endast skriva in poängen från de tärningar som visar fem prickar.</p>
+ 
   <h2>Förklaringar</h2>
   <ul>
   <li>För att få bonus måste spelaren få minst 63 poäng i de sex översta villkoren (detta motsvarar i genomsnitt tre av varje villkor). Bonus ger alltid 50 poäng oavsett poängsumman.</li>
@@ -369,64 +373,31 @@ const Die = {
       else if (this.di.value === 6) return "&#9861;";
       else return "";
   },
+  rollAnimate() {
+    return this.$store.state.rollAnimate;
+  }
+
+},
   methods: {
     toggleLockDice(id) {
       store.commit("toggleLockDice", id);
+    },
+    toggleRollAnimate() {
+      store.commit('toggleRollAnimte')
     }
   },
 
-  template: `<div v-bind:class="classObject" v-html="getDieUnicode" v-on:click="toggleLockDice(id)">
+  template: `<div>
+   <transition v-if=rollAnimate name="rolling">
+  <div v-if=rollAnimate v-html="getDieUnicode"></div>
+      </transition>
+      <div v-bind:class="classObject" v-html="getDieUnicode" v-on:click="toggleLockDice(id)">
+      </div>
       </div>
       `
-}
+
 }
 
-const DieDesign = {
-  data: {
-    die1: {
-      svg: {
-        width: 557,
-        height: 557
-      },
-      rect: {
-        x: 4,
-        y: 4,
-        width: 549,
-        height: 549,
-        rx: 68,
-        fill: "none",
-        stroke: "#000",
-        strokeWidth: 7
-      },
-      circle: {
-        fill: "#FF724C",
-        stroke: "#700",
-        strokeWidth: 5,
-        cx: 278,
-        cy: 278,
-        r: 57
-      }
-    }
-  },
-  template: ` 
-<template>
-  <svg xmlns="http://www.w3.org/2000/svg"
-    :width="width"
-    :height="height"
-    viewBox="0 0 18 18"
-    :aria-labelledby="iconName"
-    role="presentation"
-  >
-    <title
-      :id="iconName"
-      lang="en"
-    >{{ iconName }} icon</title>
-    <g :fill="iconColor">
-      <slot />
-    </g>
-  </svg>
-</template>`
-};
 
 //Ska skriva ut de rullade tärningarna längst ner i appen
 const DiceHolder = {
@@ -666,6 +637,11 @@ const Actions = {
   methods: {
     rollDice() {
       store.commit("rollDice");
+    },
+    //togglar till true i två sekunder.
+    toggleRollAnimate() {
+      store.commit("toggleRollAnimate")
+      setTimeout(() => store.commit("toggleRollAnimate"), 2000);
     },
     logName() {
       console.log("you pressed enter");
