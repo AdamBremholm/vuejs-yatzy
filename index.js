@@ -6,6 +6,7 @@ const store = new Vuex.Store({
     activeItem: [],
     isMobile: false,
     rollAnimate: false,
+    stopCalculations : false,
   },
   getters: {
     activeItemId: (state, getters) => {
@@ -230,12 +231,28 @@ const store = new Vuex.Store({
 
         state.dice.forEach(d => {
           if (!d.locked) {
-            d.value = Math.floor(Math.random() * 6) + 1;
+            state.stopCalculations = true;
+              var i = 0;
+              var id = setInterval(frame, 50);
+              //settar random värde på tärningen
+              function frame() {
+                if (i == 20) {
+                  clearInterval(id);
+                  state.stopCalculations = false;
+                } else {
+                  d.value = Math.floor(Math.random() * 6) + 1;
+                  i++;
+                }
+              }
+            
           }
         });
 
         store.commit("decrementRollsLeft");
       }
+    },
+    changeDieValue(state, payload) {
+      state.dice[payload.index].value = payload.value;
     },
     toggleIsMobile(state, payload) {
       if (payload === true) state.isMobile = true;
@@ -293,6 +310,39 @@ const store = new Vuex.Store({
     resetGame(state) {
       mutations.resetDice;
     }
+  },
+  actions : {
+
+    rollDice(context) {
+      if (state.rollsLeft > 0) {
+        // Rensar locked tärning om man rollar tärningen
+        if (store.getters.activeItemExists) {
+          store.commit("unlockItem", state.activeItem[0].id - 1);
+        }
+
+        state.dice.forEach(d => {
+          if (!d.locked) {
+            state.stopCalculations = true;
+              var i = 0;
+              var id = setInterval(frame, 50);
+              //settar random värde på tärningen
+              function frame() {
+                if (i == 20) {
+                  clearInterval(id);
+                  state.stopCalculations = false;
+                } else {
+                  d.value = Math.floor(Math.random() * 6) + 1;
+                  i++;
+                }
+              }
+            
+          }
+        });
+
+        store.commit("decrementRollsLeft");
+      }
+    },
+
   }
 });
 
@@ -328,6 +378,18 @@ const HeaderMobile = {
 };
 
 const Sidebar = {
+  store,
+  computed: {
+    rollAnimate() {
+      return this.$store.state.rollAnimate;
+    }
+  },
+  methods: {
+    toggleRollAnimate() {
+      this.$store.commit("toggleRollAnimate");
+    }
+  },
+
   template: `<div class="sidebar"> 
   <div class="rules">
   <h1>Spelregler</h1>
@@ -343,6 +405,12 @@ const Sidebar = {
   <li>Chans innebär att man ska få så högt tal som möjligt när samtliga tärningsprickar räknas samman.</li>
   <li>Spelet har 15 villkor att uppfylla. Detta kan maximalt ge 374 poäng.
   </li>
+  <div id="example-2">
+  <button @click="toggleRollAnimate">Toggle show</button>
+  <transition name="bounce">
+    <p v-if="rollAnimate">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris facilisis enim libero, at lacinia diam fermentum id. Pellentesque habitant morbi tristique senectus et netus.</p>
+  </transition>
+</div>
 
 
   </ul>
@@ -372,32 +440,43 @@ const Die = {
       else if (this.di.value === 5) return "&#9860;";
       else if (this.di.value === 6) return "&#9861;";
       else return "";
+    },
+    
+    rollAnimate() {
+      return this.$store.state.rollAnimate;
+    }
   },
-  rollAnimate() {
-    return this.$store.state.rollAnimate;
-  }
-
-},
   methods: {
     toggleLockDice(id) {
       store.commit("toggleLockDice", id);
     },
     toggleRollAnimate() {
-      store.commit('toggleRollAnimte')
+      store.commit("toggleRollAnimate");
+    },
+    changeContent() {
+      var i = 0;
+      var id = setInterval(frame, 5);
+      var diceAndNumberObject = {
+        index: this.di.id,
+        value: 0
+      };
+      //settar random värde på tärningen
+      function frame() {
+        if (i == 20) {
+          clearInterval(id);
+        } else {
+          diceAndNumberObject.value = Math.floor(Math.random() * 6) + 1;
+          store.commit("changeDieValue", diceAndNumberObject);
+          i++;
+        }
+      }
     }
   },
 
-  template: `<div>
-   <transition v-if=rollAnimate name="rolling">
-  <div v-if=rollAnimate v-html="getDieUnicode"></div>
-      </transition>
-      <div v-bind:class="classObject" v-html="getDieUnicode" v-on:click="toggleLockDice(id)">
-      </div>
-      </div>
+  template: `<div v-bind:class="classObject" v-html="getDieUnicode" v-on:click="toggleLockDice(id)">
+  </div>
       `
-
-}
-
+};
 
 //Ska skriva ut de rullade tärningarna längst ner i appen
 const DiceHolder = {
@@ -453,6 +532,8 @@ const Item = {
     // prettier-ignore
     //Kollar att scorecardet så att värdet inte är låst. Släpper dock igenom summa, bonus och total eftersom dessa alltid ska räknas ut.
     displayScore() {
+      if (this.$store.state.stopCalculations) 
+      return this.$store.state.scoreCard[this.it.id-1].value;
       if (this.$store.state.scoreCard[this.it.id-1].locked === false || this.$store.state.scoreCard[this.it.id-1].selectable === false){
       switch (this.it.field) {
         case "ettor" : return this.calculateNumbersOne
@@ -640,8 +721,7 @@ const Actions = {
     },
     //togglar till true i två sekunder.
     toggleRollAnimate() {
-      store.commit("toggleRollAnimate")
-      setTimeout(() => store.commit("toggleRollAnimate"), 2000);
+      store.commit("toggleRollAnimate");
     },
     logName() {
       console.log("you pressed enter");
