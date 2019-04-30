@@ -6,7 +6,7 @@ const store = new Vuex.Store({
     activeItem: [],
     isMobile: false,
     rollAnimate: false,
-    stopCalculations : false,
+    rollingInProgress: false
   },
   getters: {
     activeItemId: (state, getters) => {
@@ -222,35 +222,6 @@ const store = new Vuex.Store({
     }
   },
   mutations: {
-    rollDice(state) {
-      if (state.rollsLeft > 0) {
-        // Rensar locked tärning om man rollar tärningen
-        if (store.getters.activeItemExists) {
-          store.commit("unlockItem", state.activeItem[0].id - 1);
-        }
-
-        state.dice.forEach(d => {
-          if (!d.locked) {
-            state.stopCalculations = true;
-              var i = 0;
-              var id = setInterval(frame, 50);
-              //settar random värde på tärningen
-              function frame() {
-                if (i == 20) {
-                  clearInterval(id);
-                  state.stopCalculations = false;
-                } else {
-                  d.value = Math.floor(Math.random() * 6) + 1;
-                  i++;
-                }
-              }
-            
-          }
-        });
-
-        store.commit("decrementRollsLeft");
-      }
-    },
     changeDieValue(state, payload) {
       state.dice[payload.index].value = payload.value;
     },
@@ -261,9 +232,10 @@ const store = new Vuex.Store({
     toggleRollAnimate(state) {
       state.rollAnimate = !state.rollAnimate;
     },
+    //Kollar så att tärningarna har ett värde och att dom inte rullas innan låset går igenom.
     toggleLockDice(state, payload) {
       let index = state.dice.findIndex(x => x.id === payload);
-      if (state.dice[index].value != 0)
+      if (state.dice[index].value != 0 && state.rollingInProgress === false)
         state.dice[index].locked = !state.dice[index].locked;
     },
     setScoreAndLock(state, payload) {
@@ -311,38 +283,38 @@ const store = new Vuex.Store({
       mutations.resetDice;
     }
   },
-  actions : {
-
-    rollDice(context) {
+  //Lägger i actions pga async. rollingInProgress fixar så att vi inte räknar ut medan tärningarna rullas.  Kör 7 rolls sen klar och kör decrementRollsLeft
+  actions: {
+    rollDice({ commit, state, getters }) {
       if (state.rollsLeft > 0) {
         // Rensar locked tärning om man rollar tärningen
-        if (store.getters.activeItemExists) {
-          store.commit("unlockItem", state.activeItem[0].id - 1);
+        if (getters.activeItemExists) {
+          commit("unlockItem", state.activeItem[0].id - 1);
         }
-
         state.dice.forEach(d => {
           if (!d.locked) {
-            state.stopCalculations = true;
-              var i = 0;
-              var id = setInterval(frame, 50);
-              //settar random värde på tärningen
-              function frame() {
-                if (i == 20) {
-                  clearInterval(id);
-                  state.stopCalculations = false;
-                } else {
-                  d.value = Math.floor(Math.random() * 6) + 1;
-                  i++;
-                }
+            state.rollingInProgress = true;
+            var i = 0;
+            var id = setInterval(frame, 75);
+            //settar random värde på tärningen
+            function frame() {
+              if (i == 7) {
+                clearInterval(id);
+                state.rollingInProgress = false;
+              } else {
+                commit("changeDieValue", {
+                  index: d.id,
+                  value: Math.floor(Math.random() * 6) + 1
+                });
+                i++;
               }
-            
+            }
           }
         });
 
-        store.commit("decrementRollsLeft");
+        commit("decrementRollsLeft");
       }
-    },
-
+    }
   }
 });
 
@@ -441,7 +413,7 @@ const Die = {
       else if (this.di.value === 6) return "&#9861;";
       else return "";
     },
-    
+
     rollAnimate() {
       return this.$store.state.rollAnimate;
     }
@@ -532,7 +504,7 @@ const Item = {
     // prettier-ignore
     //Kollar att scorecardet så att värdet inte är låst. Släpper dock igenom summa, bonus och total eftersom dessa alltid ska räknas ut.
     displayScore() {
-      if (this.$store.state.stopCalculations) 
+      if (this.$store.state.rollingInProgress) 
       return this.$store.state.scoreCard[this.it.id-1].value;
       if (this.$store.state.scoreCard[this.it.id-1].locked === false || this.$store.state.scoreCard[this.it.id-1].selectable === false){
       switch (this.it.field) {
@@ -627,15 +599,18 @@ const Item = {
     },
     isInfo() {
       return this.it.field === "info" ? true : false;
+    },
+    rollingInProgress() {
+      return this.$store.state.rollingInProgress
     }
   },
   methods: {
-    // 1. Kollar först att det finns tärningar så att man inte lockar innan man har rollat
+    // 1. Kollar först att det finns tärningar eller att den håller på att rulla så att man inte lockar innan man har rollat
     // 2. Ser om det redan finns ett activeItem och att det inte är samma id som det man klickade på, isåfall låser den upp det först innan den lägger in det nya.
     // 3. Lägger in värdet med setScoreAndLock
     // 4. Om det är samma id på det aktiva itemet som det man klickar på vill vi enbart låsa upp fältet och inte lägga in något nytt.
     toggleLockToScoreCard() {
-      if (this.getRollsLeft != 3) {
+      if (this.getRollsLeft != 3 && this.rollingInProgress === false) {
         if (this.activeItemExists && this.activeItemId != this.it.id) {
           let index = this.activeItemId - 1;
           store.commit("unlockItem", index);
@@ -717,7 +692,7 @@ const Actions = {
 
   methods: {
     rollDice() {
-      store.commit("rollDice");
+      store.dispatch("rollDice");
     },
     //togglar till true i två sekunder.
     toggleRollAnimate() {
@@ -817,6 +792,7 @@ const app = new Vue({
       return this.$store.state.isMobile;
     }
   },
+  // Som media query men för vue komponenter.
   methods: {
     detectMobile() {
       if (window.innerWidth <= 600) {
@@ -853,7 +829,7 @@ const app = new Vue({
         // Om det inte finns några rolls kvar blir båda space och enter nästa runda.
         if (event.key === " ") {
           if (store.state.rollsLeft === 0) current.nextRound();
-          else store.commit("rollDice");
+          else store.dispatch("rollDice");
         } else if (event.key === "Enter") {
           current.nextRound();
         } else if (event.key === "1") {
