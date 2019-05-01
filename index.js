@@ -384,6 +384,7 @@ const store = new Vuex.Store({
         commit("decrementRollsLeft");
       }
     },
+    
   
 
     nextRound({state, commit, getters, dispatch }) {
@@ -734,6 +735,9 @@ const Item = {
           store.commit("unlockItem", index);
         }
       }
+    },
+    highlightChoices() {
+      store.commit('highLightChoices')
     }
   },
 
@@ -742,7 +746,7 @@ const Item = {
           <div v-if="!isInfo" class="fi">{{it.field}}</div>
           <div v-else-if="isInfo">Få 63p i den här kolumnen för att få en extra 50p bonus!</div>
 
-          <div v-if="!isInfo" v-bind:class="classObjectSubItem">{{displayScore}}</div>
+          <div v-if="!isInfo" v-bind:class="classObjectSubItem" v-on:hover="highlightChoices">{{displayScore}}</div>
           </div>
       `
 };
@@ -824,11 +828,12 @@ const Actions = {
   },
   template: `
   <div v-bind:class="{'ah-one-slot black-border' : ahOneSlot, 'action-holder' : ahTwoSlot}"> 
-            <div v-if="!activeItemExists && getRollsLeft===0" class="info"> Assign your slot before continueing</div>
-            <div v-else-if="ahOneSlot && getRollsLeft!=0" class="info" v-on:click="rollDice">slå tärningarna: {{getRollsLeft}} gånger kvar</div>
-            <div v-else-if="getRollsLeft===0 && activeItemExists" class="info" v-on:click="nextRound">Play</div>
+            <div v-if="!activeItemExists && getRollsLeft===0" class="info"> Välj kombination innan du fortsätter!</div>
+            <div v-else-if="ahOneSlot && getRollsLeft!=0" class="info" v-on:click="rollDice">Slå tärningarna, {{getRollsLeft}} försök kvar</div>
+            <div v-else-if="getRollsLeft===0 && activeItemExists" class="info" v-on:click="nextRound">Lås in vald kombination</div>
 
-            <div v-if="getRollsLeft!=3 && getRollsLeft!=0 && activeItemExists" class="next" v-on:click="nextRound">Spela kombination</div>
+            <div v-if="activeItemExists && getRollsLeft!=0" class="roll" v-on:click="rollDice">Slå tärningarna, {{getRollsLeft}} försök kvar</div>
+            <div v-if="getRollsLeft!=3 && getRollsLeft!=0 && activeItemExists" class="next" v-on:click="nextRound">Lås in vald kombination</div>
                
    </div>`
 };
