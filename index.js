@@ -4,9 +4,11 @@ const store = new Vuex.Store({
     scoreCard: [],
     rollsLeft: 3,
     activeItem: [],
+    playedItems: [],
     isMobile: false,
     rollAnimate: false,
-    rollingInProgress: false
+    rollingInProgress: false,
+    victoryScreen: false
   },
   getters: {
     activeItemId: (state, getters) => {
@@ -28,6 +30,9 @@ const store = new Vuex.Store({
         results.push(d.value);
       });
       return results;
+    },
+    checkEndGame : state => {
+      return state.playedItems.length === 15 ? true : false;
     },
     //Sorterar med högsta tal först
     sortByDesDice: (state, getters) => {
@@ -199,6 +204,7 @@ const store = new Vuex.Store({
       let mockArray = [2, 3, 4, 5, 6];
       return mockArray;
     },
+    //Gör en aggregate array på hur många antal det finns av varje dice. Måst ha med state även fast den inte används.
     calculateAggregate: (state, getters) => {
       let aggregate = [];
       let current = null;
@@ -222,6 +228,67 @@ const store = new Vuex.Store({
     }
   },
   mutations: {
+    initScoreCard(state) {
+      let fieldArray = [
+        "ettor",
+        "tvåor",
+        "treor",
+        "fyror",
+        "femmor",
+        "sexor",
+        "del-summa",
+        "bonus",
+        "info",
+        "par",
+        "två-par",
+        "triss",
+        "fyrtal",
+        "liten-stege",
+        "stor-stege",
+        "kåk",
+        "chans",
+        "yatzy"
+      ];
+      //Lägger så att bonus del-summa och totalt är låsta.
+      for (let index = 0; index < fieldArray.length; index++) {
+        let indexPlusOne = index + 1;
+        if (
+          fieldArray[index] === "bonus" ||
+          fieldArray[index] === "del-summa" ||
+          fieldArray[index] === "info"
+        ) {
+          state.scoreCard.push({
+            id: indexPlusOne,
+            field: fieldArray[index],
+            value: 0,
+            locked: true,
+            unlockable: false,
+            selectable: false
+          });
+        } else {
+          state.scoreCard.push({
+            id: indexPlusOne,
+            field: fieldArray[index],
+            value: 0,
+            locked: false,
+            unlockable: true,
+            selectable: true
+          });
+        }
+      }
+    },
+
+    //Lägger in 5 tärningar
+    initDice(state) {
+      for (let index = 0; index < 5; index++) {
+        state.dice.push({
+          id: index,
+          value: 0,
+          locked: false
+        });
+      }
+    },
+
     changeDieValue(state, payload) {
       state.dice[payload.index].value = payload.value;
     },
@@ -264,6 +331,11 @@ const store = new Vuex.Store({
       let id = state.activeItem[0].id - 1;
       state.scoreCard[id].unlockable = false;
     },
+    pushToPlayedItems(state) {
+      if (state.activeItem.length > 0) {
+        state.playedItems.push(state.activeItem[0]);
+      }
+    },
     popActiveItem(state) {
       state.activeItem.pop();
     },
@@ -271,16 +343,13 @@ const store = new Vuex.Store({
       state.rollsLeft = 3;
     },
     decrementRollsLeft(state) {
-      if (state.rollsLeft > 0) state.rollsLeft--;
+      if (state.rollsLeft > 0) state.rollsLeft--
     },
     resetDice(state) {
       state.dice.forEach(d => {
         d.value = 0;
         d.locked = false;
       });
-    },
-    resetGame(state) {
-      mutations.resetDice;
     }
   },
   //Lägger i actions pga async. rollingInProgress fixar så att vi inte räknar ut medan tärningarna rullas.  Kör 7 rolls sen klar och kör decrementRollsLeft
@@ -314,6 +383,35 @@ const store = new Vuex.Store({
 
         commit("decrementRollsLeft");
       }
+    },
+  
+
+    nextRound({state, commit, getters, dispatch }) {
+      if (getters.activeItemExists) {
+        //Nollar tärningarna så man inte kan klicka på något
+        commit("resetDice");
+        //Fixar deeplock på det aktiva itemet i scorecardet och nollställer activeItemArrayen set available rolls to 3 again
+        commit("deepLock");
+        commit("pushToPlayedItems");
+        commit("popActiveItem");
+        commit("restoreRollsLeft");
+        if (getters.checkEndGame) {
+          dispatch("presentVictoryScreen");
+          dispatch("resetGame");
+        }
+      }
+    },
+
+    resetGame({ state, commit }) {
+      state.scoreCard.splice(0, state.scoreCard.length);
+      state.playedItems.splice(0, state.playedItems.length);
+      commit("initScoreCard");
+    },
+
+    presentVictoryScreen({ commit, state, getters }) {
+      state.victoryScreen = true;
+      setTimeout(() => {
+        state.victoryScreen = false}, 3000)
     }
   }
 });
@@ -327,7 +425,7 @@ const Header = {
       return this.$store.getters.calculateTotalScore;
     }
   },
-  template: `<div class="header">Adams Yatzy App | Score: {{totalScore}} 
+  template: `<div class="header">Adams Yatzy App | Totala Poäng: {{totalScore}} 
       </div>`
 };
 
@@ -341,13 +439,30 @@ const HeaderMobile = {
     }
   },
   template: `<div class="header">
-  <p class="title">Adams Yatzy App | Score: {{totalScore}} </p>
+  <p class="title">Adams Yatzy App | Totala Poäng: {{totalScore}} </p>
   <p class="nav">
   <router-link to="/rules">Rules</router-link> |
   <router-link to="/">Game</router-link>
   </p>
       </div>`
 };
+
+const Victory = {
+
+  computed : {
+    totalScore() {
+      return this.$store.getters.calculateTotalScore;
+    }
+  },
+
+  template: `<div>
+  <div class="victory">
+Yatzy Royale!<br>
+Dina sammanlagda poäng blev:  {{totalScore}} !<br>
+Spelet kommer att startas om inom kort...
+      </div class="victory">
+      </div>`
+}
 
 const Sidebar = {
   store,
@@ -378,10 +493,6 @@ const Sidebar = {
   <li>Spelet har 15 villkor att uppfylla. Detta kan maximalt ge 374 poäng.
   </li>
   <div id="example-2">
-  <button @click="toggleRollAnimate">Toggle show</button>
-  <transition name="bounce">
-    <p v-if="rollAnimate">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris facilisis enim libero, at lacinia diam fermentum id. Pellentesque habitant morbi tristique senectus et netus.</p>
-  </transition>
 </div>
 
 
@@ -504,7 +615,7 @@ const Item = {
     // prettier-ignore
     //Kollar att scorecardet så att värdet inte är låst. Släpper dock igenom summa, bonus och total eftersom dessa alltid ska räknas ut.
     displayScore() {
-      if (this.$store.state.rollingInProgress) 
+      if (this.$store.state.rollingInProgress && this.$store.state.scoreCard[this.it.id-1].selectable === true) 
       return this.$store.state.scoreCard[this.it.id-1].value;
       if (this.$store.state.scoreCard[this.it.id-1].locked === false || this.$store.state.scoreCard[this.it.id-1].selectable === false){
       switch (this.it.field) {
@@ -601,7 +712,7 @@ const Item = {
       return this.it.field === "info" ? true : false;
     },
     rollingInProgress() {
-      return this.$store.state.rollingInProgress
+      return this.$store.state.rollingInProgress;
     }
   },
   methods: {
@@ -629,7 +740,7 @@ const Item = {
   template: `
          <div v-bind:class="classObject" v-on:click="toggleLockToScoreCard">
           <div v-if="!isInfo" class="fi">{{it.field}}</div>
-          <div v-else-if="isInfo">Get 63p in this column to unlock 50p bonus!</div>
+          <div v-else-if="isInfo">Få 63p i den här kolumnen för att få en extra 50p bonus!</div>
 
           <div v-if="!isInfo" v-bind:class="classObjectSubItem">{{displayScore}}</div>
           </div>
@@ -647,10 +758,10 @@ Vue.component("scoreCard", {
   },
   template: `
         <div class="score-card">
-        <div class="cbvl cb1">Combo</div>
-        <div class="cbvl vl1">Value</div>
-        <div class="cbvl cb2">Combo</div>
-        <div class="cbvl vl2">Value</div>
+        <div class="cbvl cb1">Kombination</div>
+        <div class="cbvl vl1">Poäng</div>
+        <div class="cbvl cb2">Kombination</div>
+        <div class="cbvl vl2">Poäng</div>
         <item-selector v-for="i, index in scoreCard" v-bind:it="i" :key="index"></item-selector>
         </div>    
     `,
@@ -687,6 +798,9 @@ const Actions = {
     },
     activeItem() {
       return this.$store.state.activeItem;
+    },
+    checkEndGame() {
+      return this.$store.getters.checkEndGame;
     }
   },
 
@@ -705,24 +819,16 @@ const Actions = {
       store.commit("decrementRollsLeft");
     },
     nextRound() {
-      if (this.activeItemExists) {
-        //Nollar tärningarna så man inte kan klicka på något
-        store.commit("resetDice");
-        //Fixar deeplock på det aktiva itemet i scorecardet och nollställer activeItemArrayen set available rolls to r again
-        store.commit("deepLock");
-        store.commit("popActiveItem");
-        store.commit("restoreRollsLeft");
-      }
+      this.$store.dispatch("nextRound");
     }
   },
   template: `
   <div v-bind:class="{'ah-one-slot black-border' : ahOneSlot, 'action-holder' : ahTwoSlot}"> 
             <div v-if="!activeItemExists && getRollsLeft===0" class="info"> Assign your slot before continueing</div>
-            <div v-else-if="ahOneSlot && getRollsLeft!=0" class="info" v-on:click="rollDice" v-on:keyup.enter="rollDice">roll: {{getRollsLeft}} left</div>
+            <div v-else-if="ahOneSlot && getRollsLeft!=0" class="info" v-on:click="rollDice">slå tärningarna: {{getRollsLeft}} gånger kvar</div>
             <div v-else-if="getRollsLeft===0 && activeItemExists" class="info" v-on:click="nextRound">Play</div>
 
-            <div v-if="activeItemExists && getRollsLeft!=0" class="roll" v-on:click="rollDice">roll: {{getRollsLeft}} left</div>
-            <div v-if="getRollsLeft!=3 && getRollsLeft!=0 && activeItemExists" class="next" v-on:click="nextRound">Play</div>
+            <div v-if="getRollsLeft!=3 && getRollsLeft!=0 && activeItemExists" class="next" v-on:click="nextRound">Spela kombination</div>
                
    </div>`
 };
@@ -749,17 +855,36 @@ const Container = {
   computed: {
     isMobile() {
       return this.$store.state.isMobile;
+    },
+    victoryScreen() {
+      return this.$store.state.victoryScreen;
+    },
+    classObject() {
+      if(this.victoryScreen)
+      return 'victory-container'
+      else return 'container'
     }
+    
+    
+  },
+  methods : {
+  
   },
 
-  template: `<section class="container">
-  <header-holder v-if="!isMobile">Yatzy, Totals. </header-holder>
-                <header-holder-mobile v-else>Yatzy, Totals. </header-holder-mobile>
-                <sidebar-holder v-if="!isMobile"></sidebar-holder>
-                <score-card>Score Card</score-card>
-                <dice-holder>Dice Holder</dice-holder>
-                <action-holder>Action Holder</action-holder>
+  template: `
+  <div>
+  <victory-holder v-if="victoryScreen" v-bind:class="classObject">></victory-holder>
+  <section v-if="!victoryScreen" v-bind:class="classObject">
+
+  <header-holder v-if="!isMobile && !victoryScreen">Yatzy, Totals. </header-holder>
+                <header-holder-mobile v-else-if="isMobile && !victoryScreen">Yatzy, Totals. </header-holder-mobile>
+                <sidebar-holder v-if="!isMobile && !victoryScreen"></sidebar-holder>
+                <score-card v-if="!victoryScreen">Score Card</score-card>
+                <dice-holder v-if="!victoryScreen">"Dice Holder</dice-holder>
+                <action-holder v-if="!victoryScreen">Action Holder</action-holder>
                 </section>
+               
+                </div>
   `,
   components: {
     "dice-holder": DiceHolder,
@@ -767,7 +892,8 @@ const Container = {
     "header-holder": Header,
     "header-holder-mobile": HeaderMobile,
     "sidebar-holder": Sidebar,
-    "rules-mobile": RulesMobile
+    "rules-mobile": RulesMobile,
+    "victory-holder" : Victory
   }
 };
 
@@ -801,27 +927,6 @@ const app = new Vue({
         store.commit("toggleIsMobile", false);
       }
     },
-
-    //Lägger in 5 tärningar i vuex store
-    initDice() {
-      for (let index = 0; index < 5; index++) {
-        store.state.dice.push({
-          id: index,
-          value: 0,
-          locked: false
-        });
-      }
-    },
-    nextRound() {
-      if (this.activeItemExists) {
-        //Nollar tärningarna så man inte kan klicka på något
-        store.commit("resetDice");
-        //Fixar deeplock på det aktiva itemet i scorecardet och nollställer activeItemArrayen set available rolls to r again
-        store.commit("deepLock");
-        store.commit("popActiveItem");
-        store.commit("restoreRollsLeft");
-      }
-    },
     startKeyEventListener() {
       var current = this;
       window.addEventListener("keyup", function(event) {
@@ -851,82 +956,32 @@ const app = new Vue({
       window.addEventListener("resize", () => {
         if (
           current.$store.state.isMobile === false &&
-          window.innerWidth <= 600
+          window.innerWidth <= 870
         ) {
           store.commit("toggleIsMobile", true);
         } else if (
           current.$store.state.isMobile === true &&
-          window.innerWidth > 600
+          window.innerWidth > 870
         ) {
           store.commit("toggleIsMobile", false);
         }
       });
     },
 
-    initScoreCard() {
-      let fieldArray = [
-        "ettor",
-        "tvåor",
-        "treor",
-        "fyror",
-        "femmor",
-        "sexor",
-        "del-summa",
-        "bonus",
-        "info",
-        "par",
-        "två-par",
-        "triss",
-        "fyrtal",
-        "liten-stege",
-        "stor-stege",
-        "kåk",
-        "chans",
-        "yatzy"
-      ];
-      //Lägger så att bonus del-summa och totalt är låsta.
-      for (let index = 0; index < fieldArray.length; index++) {
-        let indexPlusOne = index + 1;
-        if (
-          fieldArray[index] === "bonus" ||
-          fieldArray[index] === "del-summa" ||
-          fieldArray[index] === "info"
-        ) {
-          store.state.scoreCard.push({
-            id: indexPlusOne,
-            field: fieldArray[index],
-            value: 0,
-            locked: true,
-            unlockable: false,
-            selectable: false
-          });
-        } else {
-          store.state.scoreCard.push({
-            id: indexPlusOne,
-            field: fieldArray[index],
-            value: 0,
-            locked: false,
-            unlockable: true,
-            selectable: true
-          });
-        }
-      }
+    nextRound() {
+      this.$store.dispatch("nextRound");
     }
   },
   //Kör när vuen skapas
   mounted() {
-    this.initDice();
-    this.initScoreCard();
+    this.$store.commit("initDice");
+    this.$store.commit("initScoreCard");
     this.startKeyEventListener();
     this.detectMobile();
     this.startResizeListener();
   },
   components: {
-    "dice-holder": DiceHolder,
-    "action-holder": Actions,
-    "header-holder": Header,
-    "header-holder-mobile": HeaderMobile,
-    "sidebar-holder": Sidebar,
-    "container-holder": Container
+    "container-holder": Container,
+    "victory-holder" : Victory
   }
 });

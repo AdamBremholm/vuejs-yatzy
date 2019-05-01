@@ -1,10 +1,14 @@
 /*--------------------------------------------------MOBILE--------------------------------------------------------------------------------------------*/
 
 
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 870px) {
 
   .hidden {
     visibility: hidden;
+  }
+
+  .body {
+    background-color: blanchedalmond;
   }
   
   .container {
@@ -13,8 +17,8 @@
     justify-content: center;
     align-items: center;
     background-color: white;
-    width: 97vw;
-    height: 93vh;
+    width: 95vw;
+    height: 97vh;
     overflow-x: hidden;
     overflow-y: hidden;
     grid-row-gap: 20px;
@@ -348,15 +352,46 @@
    
   }
 
-
-  @keyframes rolling {
-    0% {content:'\2680';}
-    20% {content:'\2681';}
-    40% {content:'\2682';}
-    60% {content:'\2683';}
-    80% {content:'\2684';}
-    100% {content:'\2685';}
+  .victory-container {
+    border-radius: 5px;
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    border-radius: 5px;
+    width: 90vw;
+    height: 90vh;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    grid-template-areas: 'v';
   }
+
+
+  .victory {
+    grid-area: v;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid black;
+    border-radius: 5px;
+    height:50%;
+    font-weight: bold;
+    font-size: larger;
+    margin: 10px;
+    padding: 10px;
+
+  }
+
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity .5s;
+  }
+  .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+    opacity: 0;
+  }
+  
+
+
+
 
   
   }
@@ -364,7 +399,7 @@
 /*--------------------------------------------------DESKTOP--------------------------------------------------------------------------------------------*/
 
 
-@media only screen and (min-width: 600px) {
+@media only screen and (min-width: 870px) {
 
   .hidden {
     visibility: hidden;
@@ -700,19 +735,41 @@
    
   }
 
-  .bounce-enter-active {
-    animation: bounce-in 5s;
+  .victory-container {
+    border-radius: 5px;
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    border-radius: 5px;
+    width: 90vw;
+    height: 90vh;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    grid-template-areas: 'v';
   }
-  .bounce-leave-active {
-    animation: bounce-in 5s reverse;
+
+  .victory {
+    grid-area: v;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid black;
+    border-radius: 5px;
+    height:50%;
+    font-weight: bold;
+    font-size: larger;
+    margin: 10px;
+    padding: 10px;
+
   }
-  @keyframes bounce-in {
-    0% {content:'\2680';}
-    20% {content:'\2681';}
-    40% {content:'\2682';}
-    60% {content:'\2683';}
-    80% {content:'\2684';}
-    100% {content:'\2685';}
+
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity .5s;
+  }
+  
+  .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+    opacity: 0;
   }
   
   }
