@@ -6,7 +6,6 @@ const store = new Vuex.Store({
     activeItem: [],
     playedItems: [],
     isMobile: false,
-    rollAnimate: false,
     rollingInProgress: false,
     victoryScreen: false
   },
@@ -31,7 +30,7 @@ const store = new Vuex.Store({
       });
       return results;
     },
-    checkEndGame : state => {
+    checkEndGame: state => {
       return state.playedItems.length === 15 ? true : false;
     },
     //Sorterar med högsta tal först
@@ -296,9 +295,6 @@ const store = new Vuex.Store({
       if (payload === true) state.isMobile = true;
       else state.isMobile = false;
     },
-    toggleRollAnimate(state) {
-      state.rollAnimate = !state.rollAnimate;
-    },
     //Kollar så att tärningarna har ett värde och att dom inte rullas innan låset går igenom.
     toggleLockDice(state, payload) {
       let index = state.dice.findIndex(x => x.id === payload);
@@ -343,7 +339,7 @@ const store = new Vuex.Store({
       state.rollsLeft = 3;
     },
     decrementRollsLeft(state) {
-      if (state.rollsLeft > 0) state.rollsLeft--
+      if (state.rollsLeft > 0) state.rollsLeft--;
     },
     resetDice(state) {
       state.dice.forEach(d => {
@@ -384,10 +380,8 @@ const store = new Vuex.Store({
         commit("decrementRollsLeft");
       }
     },
-    
-  
 
-    nextRound({state, commit, getters, dispatch }) {
+    nextRound({ state, commit, getters, dispatch }) {
       if (getters.activeItemExists) {
         //Nollar tärningarna så man inte kan klicka på något
         commit("resetDice");
@@ -398,7 +392,6 @@ const store = new Vuex.Store({
         commit("restoreRollsLeft");
         if (getters.checkEndGame) {
           dispatch("presentVictoryScreen");
-          dispatch("resetGame");
         }
       }
     },
@@ -412,7 +405,9 @@ const store = new Vuex.Store({
     presentVictoryScreen({ commit, state, getters }) {
       state.victoryScreen = true;
       setTimeout(() => {
-        state.victoryScreen = false}, 3000)
+        state.victoryScreen = false;
+        dispatch("resetGame");
+      }, 3000);
     }
   }
 });
@@ -449,8 +444,7 @@ const HeaderMobile = {
 };
 
 const Victory = {
-
-  computed : {
+  computed: {
     totalScore() {
       return this.$store.getters.calculateTotalScore;
     }
@@ -463,21 +457,9 @@ Dina sammanlagda poäng blev:  {{totalScore}} !<br>
 Spelet kommer att startas om inom kort...
       </div class="victory">
       </div>`
-}
+};
 
 const Sidebar = {
-  store,
-  computed: {
-    rollAnimate() {
-      return this.$store.state.rollAnimate;
-    }
-  },
-  methods: {
-    toggleRollAnimate() {
-      this.$store.commit("toggleRollAnimate");
-    }
-  },
-
   template: `<div class="sidebar"> 
   <div class="rules">
   <h1>Spelregler</h1>
@@ -495,8 +477,6 @@ const Sidebar = {
   </li>
   <div id="example-2">
 </div>
-
-
   </ul>
   </div class="rules">
   
@@ -526,34 +506,10 @@ const Die = {
       else return "";
     },
 
-    rollAnimate() {
-      return this.$store.state.rollAnimate;
-    }
   },
   methods: {
     toggleLockDice(id) {
       store.commit("toggleLockDice", id);
-    },
-    toggleRollAnimate() {
-      store.commit("toggleRollAnimate");
-    },
-    changeContent() {
-      var i = 0;
-      var id = setInterval(frame, 5);
-      var diceAndNumberObject = {
-        index: this.di.id,
-        value: 0
-      };
-      //settar random värde på tärningen
-      function frame() {
-        if (i == 20) {
-          clearInterval(id);
-        } else {
-          diceAndNumberObject.value = Math.floor(Math.random() * 6) + 1;
-          store.commit("changeDieValue", diceAndNumberObject);
-          i++;
-        }
-      }
     }
   },
 
@@ -737,7 +693,7 @@ const Item = {
       }
     },
     highlightChoices() {
-      store.commit('highLightChoices')
+      store.commit("highLightChoices");
     }
   },
 
@@ -813,9 +769,6 @@ const Actions = {
       store.dispatch("rollDice");
     },
     //togglar till true i två sekunder.
-    toggleRollAnimate() {
-      store.commit("toggleRollAnimate");
-    },
     logName() {
       console.log("you pressed enter");
     },
@@ -865,16 +818,11 @@ const Container = {
       return this.$store.state.victoryScreen;
     },
     classObject() {
-      if(this.victoryScreen)
-      return 'victory-container'
-      else return 'container'
+      if (this.victoryScreen) return "victory-container";
+      else return "container";
     }
-    
-    
   },
-  methods : {
-  
-  },
+  methods: {},
 
   template: `
   <div>
@@ -898,7 +846,7 @@ const Container = {
     "header-holder-mobile": HeaderMobile,
     "sidebar-holder": Sidebar,
     "rules-mobile": RulesMobile,
-    "victory-holder" : Victory
+    "victory-holder": Victory
   }
 };
 
@@ -987,6 +935,6 @@ const app = new Vue({
   },
   components: {
     "container-holder": Container,
-    "victory-holder" : Victory
+    "victory-holder": Victory
   }
 });
