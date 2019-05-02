@@ -764,33 +764,31 @@
     transition: opacity .5s;
   }
   
-  .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  .fade-enter, .fade-leave-to  {
     opacity: 0;
   }
   
   }
 
   @keyframes blink {
-    0%   {background-color:rgba(250, 219, 160, 0.411); }
-    100%  {background-color:white;}
+    0%  {background-color:white;}
+    100%   {background-color:rgba(250, 219, 160, 0.411); }
+  }
+
+  @keyframes blinktwo {
+    0%  {background-color:white;}
+    100%   {background-color:rgba(250, 219, 160, 0.411); }
   }
 
   .blink-infinite {
-    animation: blink 1s infinite alternate;
-  }
-
-  .blink-infinite-one {
-    animation: blink 1s infinite alternate;
+    animation: blink 1.5s infinite alternate;
   }
 
   .blink-infinite-two {
-    animation: blink 1s infinite alternate;
-  }
-
-  .blink-infinite-three {
-    animation: blink 1s infinite alternate;
+    animation: blinktwo 1.5s infinite alternate;
   }
 
   .pointer {
     cursor: pointer
   }
+

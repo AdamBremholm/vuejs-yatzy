@@ -8,6 +8,7 @@ const store = new Vuex.Store({
     isMobile: false,
     rollingInProgress: false,
     victoryScreen: false,
+    animation: false
   },
   getters: {
     activeItemId: (state, getters) => {
@@ -337,6 +338,9 @@ const store = new Vuex.Store({
     decrementRollsLeft(state) {
       if (state.rollsLeft > 0) state.rollsLeft--;
     },
+    toggleAnimation(state) {
+      state.animation = !state.animation;
+    },
     resetDice(state) {
       state.dice.forEach(d => {
         d.value = 0;
@@ -485,9 +489,13 @@ const Die = {
     },
     classObject() {
       let idPlusOne = this.di.id + 1;
-      if (!this.di.locked && store.state.rollsLeft===3) return "di " + "di" + idPlusOne;
+      if (!this.di.locked && store.state.rollsLeft === 3)
+        return "di " + "di" + idPlusOne;
       else if (store.state.rollingInProgress) return "di " + "di" + idPlusOne;
-      else if(!this.di.locked)  return "blink-infinite pointer di " + "di" + idPlusOne;
+      else if (!this.di.locked && this.$store.state.animation === false)
+        return "blink-infinite pointer di " + "di" + idPlusOne;
+      else if (!this.di.locked && this.$store.state.animation === true)
+        return "blink-infinite-two pointer di " + "di" + idPlusOne;
       else return "di orange-background pointer " + "di" + idPlusOne;
     },
     getDieUnicode() {
@@ -502,6 +510,9 @@ const Die = {
   },
   methods: {
     toggleLockDice(id) {
+      if (this.di.locked === true) {
+        store.commit("toggleAnimation");
+      }
       store.commit("toggleLockDice", id);
     }
   },
@@ -541,7 +552,8 @@ const Item = {
     },
     // Visar field med vanlig text
     // Om det är tre rolls kvar( då det inteska gå att setta något i scorecard, visa inga feta siffror)
-    // Om item inte är låst, visar bold vilket vetyder att det går att klicka på den
+    // Om item inte är låst, visar bold vilket vetyder att det går att klicka på den samt blinka den
+    // Om animation ändras byt klass på animation (är samma men detta är för att resetta)
     // Om item är selectable false (fält som inte går att trycka på), displayas de vanligt
     // Om item är är oupplåsbart, visa det med vanlig text,
     // Annars visa det nuvarande itemet med orange border.
@@ -563,9 +575,17 @@ const Item = {
       else if (
         !this.isInfo &&
         this.it.locked === false &&
-        this.rollingInProgress === false
+        this.rollingInProgress === false &&
+        this.$store.state.animation === false
       )
         return "vl bold orange blink-infinite pointer";
+      else if (
+        !this.isInfo &&
+        this.it.locked === false &&
+        this.rollingInProgress === false &&
+        this.$store.state.animation === true
+      )
+        return "vl bold orange blink-infinite-two pointer";
       else if (!this.isInfo && this.it.selectable === false) return "vl";
       else if (!this.isInfo && this.it.unlockable === false) return "vl";
       else if (!this.isInfo && this.it.locked === true)
@@ -672,7 +692,7 @@ const Item = {
     },
     rollingInProgress() {
       return this.$store.state.rollingInProgress;
-    },
+    }
   },
   methods: {
     // 1. Kollar först att det finns tärningar eller att den håller på att rulla så att man inte lockar innan man har rollat
@@ -684,6 +704,7 @@ const Item = {
         if (this.activeItemExists && this.activeItemId != this.it.id) {
           let index = this.activeItemId - 1;
           store.commit("unlockItem", index);
+          store.commit("toggleAnimation");
         }
         if (this.$store.state.scoreCard[this.it.id - 1].locked === false) {
           let payload = { index: this.it.id - 1, value: this.displayScore };
@@ -691,18 +712,19 @@ const Item = {
         } else if (this.activeItemExists && this.activeItemId === this.it.id) {
           let index = this.activeItemId - 1;
           store.commit("unlockItem", index);
+          store.commit("toggleAnimation");
         }
       }
-    },
-    highlightChoices() {}
+    }
   },
 
   template: `
          <div v-bind:class="classObject" v-on:click="toggleLockToScoreCard">
           <div v-if="!isInfo" class="fi">{{it.field}}</div>
           <div v-else-if="isInfo">Få 63p i den här kolumnen för att få en extra 50p bonus!</div>
-
-          <div v-if="!isInfo" v-bind:class="classObjectSubItem" @mouseover="highlightChoices">{{displayScore}}</div>
+ 
+          <div v-if="!isInfo" v-bind:class="classObjectSubItem">{{displayScore}}</div>
+          
           
           </div>
       `
@@ -765,6 +787,59 @@ const Actions = {
     },
     rollingInProgress() {
       return this.$store.state.rollingInProgress;
+    },
+    animation() {
+      return this.$store.state.animation;
+    },
+    classObject() {
+      console.log("classobject running");
+      if (this.ahOneSlot && this.activeItemExists && this.getRollsLeft === 0) {
+        return "info";
+      } else if (
+        this.ahOneSlot &&
+        this.getRollsLeft === 3 &&
+        this.animation === false
+      ) {
+        return "info blink-infinite pointer";
+      } else if (
+        this.ahOneSlot &&
+        this.getRollsLeft === 3 &&
+        this.animation === true
+      ) {
+        return "info blink-infinite-two pointer";
+      } else if (
+        this.ahOneSlot &&
+        this.getRollsLeft > 0 &&
+        this.rollingInProgress
+      ) {
+        return "info pointer";
+      } else if (
+        this.ahOneSlot &&
+        this.getRollsLeft > 0 &&
+        this.animation === false
+      ) {
+        return "info blink-infinite pointer";
+      } else if (
+        this.ahOneSlot &&
+        this.getRollsLeft > 0 &&
+        this.animation === true
+      ) {
+        return "info blink-infinite-two pointer";
+      } else if (
+        this.ahOneSlot &&
+        this.getRollsLeft === 0 &&
+        this.activeItemExists &&
+        this.animation === false
+      ) {
+        return "info blink-infinite pointer";
+      } else if (
+        this.ahOneSlot &&
+        this.getRollsLeft === 0 &&
+        this.activeItemExists &&
+        this.animation === true
+      ) {
+        return "info blink-infinite-two pointer";
+      } else return "";
     }
   },
 
@@ -785,14 +860,16 @@ const Actions = {
   },
   template: `
   <div v-bind:class="{'ah-one-slot black-border' : ahOneSlot, 'action-holder' : ahTwoSlot}"> 
-            <div v-if="!activeItemExists && getRollsLeft===0" class="info"> Välj kombination innan du fortsätter!</div>
-            <div v-else-if="ahOneSlot && getRollsLeft===3" class="info blink-infinite pointer" v-on:click="rollDice">Slå tärningarna, {{getRollsLeft}} kast kvar</div>
-            <div v-else-if="ahOneSlot && getRollsLeft>0 && rollingInProgress" class="info pointer" v-on:click="rollDice">Slå tärningarna här eller välj kombination ovan, {{getRollsLeft}} kast kvar</div>
-            <div v-else-if="ahOneSlot && getRollsLeft>0" class="info blink-infinite pointer" v-on:click="rollDice">Slå tärningarna här eller välj kombination ovan, {{getRollsLeft}} kast kvar</div>
-            <div v-else-if="getRollsLeft===0 && activeItemExists" class="info blink-infinite pointer" v-on:click="nextRound">Lås in vald kombination</div>
+            <div v-if="!activeItemExists && getRollsLeft===0" v-bind:class="classObject"> Välj kombination innan du fortsätter!</div>
+            <div v-else-if="ahOneSlot && getRollsLeft===3" v-bind:class="classObject" v-on:click="rollDice">Slå tärningarna, {{getRollsLeft}} kast kvar</div>
+            <div v-else-if="ahOneSlot && getRollsLeft>0 && rollingInProgress" v-bind:class="classObject" v-on:click="rollDice">Slå tärningarna här eller välj kombination ovan, {{getRollsLeft}} kast kvar</div>
+            <div v-else-if="ahOneSlot && getRollsLeft>0" v-bind:class="classObject" v-on:click="rollDice">Slå tärningarna här eller välj kombination ovan, {{getRollsLeft}} kast kvar</div>
+            <div v-else-if="getRollsLeft===0 && activeItemExists" v-bind:class="classObject" v-on:click="nextRound">Lås in vald kombination</div>
 
-            <div v-if="activeItemExists && getRollsLeft!=0" class="roll blink-infinite pointer" v-on:click="rollDice">Slå tärningarna, {{getRollsLeft}} kast kvar</div>
-            <div v-if="getRollsLeft!=3 && getRollsLeft!=0 && activeItemExists" class="next blink-infinite pointer" v-on:click="nextRound">Lås in vald kombination</div>
+            <div v-if="activeItemExists && getRollsLeft!=0 && animation === false" class="roll blink-infinite pointer" v-on:click="rollDice">Slå tärningarna, {{getRollsLeft}} kast kvar</div>
+            <div v-else-if="activeItemExists && getRollsLeft!=0 && animation === true" class="roll blink-infinite-two pointer" v-on:click="rollDice">Slå tärningarna, {{getRollsLeft}} kast kvar</div>
+            <div v-if="getRollsLeft!=3 && getRollsLeft!=0 && activeItemExists && animation === false" class="next blink-infinite pointer" v-on:click="nextRound">Lås in vald kombination</div>
+            <div v-if="getRollsLeft!=3 && getRollsLeft!=0 && activeItemExists && animation === true" class="next blink-infinite-two pointer" v-on:click="nextRound">Lås in vald kombination</div>
                
    </div>`
 };
