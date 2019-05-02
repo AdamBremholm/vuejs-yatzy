@@ -8,7 +8,6 @@ const store = new Vuex.Store({
     isMobile: false,
     rollingInProgress: false,
     victoryScreen: false,
-    showAnimation: true
   },
   getters: {
     activeItemId: (state, getters) => {
@@ -274,12 +273,6 @@ const store = new Vuex.Store({
         }
       }
     },
-    toggleShowAnimation(state) {
-      state.showAnimation = !state.showAnimation;
-      setTimeout(() => {
-        state.showAnimation = !state.showAnimation;
-      }, 1);
-    },
     //Lägger in 5 tärningar
     initDice(state) {
       for (let index = 0; index < 5; index++) {
@@ -381,9 +374,6 @@ const store = new Vuex.Store({
         });
 
         commit("decrementRollsLeft");
-
-        console.log(" toggleshowanimation im running");
-        commit("toggleShowAnimation");
       }
     },
 
@@ -408,12 +398,12 @@ const store = new Vuex.Store({
       commit("initScoreCard");
     },
 
-    presentVictoryScreen({ commit, state, getters }) {
+    presentVictoryScreen({ commit, state, getters, dispatch }) {
       state.victoryScreen = true;
       setTimeout(() => {
-        state.victoryScreen = false;
         dispatch("resetGame");
-      }, 3000);
+        state.victoryScreen = false;
+      }, 4500);
     }
   }
 });
@@ -468,22 +458,18 @@ Spelet kommer att startas om inom kort...
 const Sidebar = {
   template: `<div class="sidebar"> 
   <div class="rules">
-  <h1>Spelregler</h1>
-  <p> Spelaren har rätt till tre tärningskast, dock behöver inte alla kast utnyttjas. Spelaren väljer själv vilka tärningar som skall kastas om, och poängsumman införs i ett protokoll. Varje rad i protokollet motsvarar en regel som tärningarna måste uppfylla för att räknas. Till exempel på raden "femmor" får man endast skriva in poängen från de tärningar som visar fem prickar.</p>
+  <h2>Hur man spelar</h2>
+  <p>Börja med att slå tärningarna och se vad för resultat de visar. Tärningar du vill behålla kan du låsa genom att klicka på dem. Rullar du tärningarna igen behåller de låsta tärningarna sina värden.</p>
+  <p>Programmet räknar fram hur mycket du får om du lägger en viss kombination. Valbara kombinationer blinkar.</p>
+  <p>När du har valt kombination väljer du knappen "Lås in vald kombination" för att fortsätta till nästa runda.<p>
+  <p>När alla fält är tagna är spelet slut.</p>
+
+  <h2>Kontroller</h2>
+  <p>Du styr spelet med hjälp av musen och tangentbordet. Kör du på en telefon klickar du på knapparna.</p>
+  <p>Knapp 1,2,3,4 och 5 låser respektive tärning från vänster. Mellanslag rullar tärningarna och Enter går vidare till nästa runda när det är möjligt.</p>
  
-  <h2>Förklaringar</h2>
-  <ul>
-  <li>För att få bonus måste spelaren få minst 63 poäng i de sex översta villkoren (detta motsvarar i genomsnitt tre av varje villkor). Bonus ger alltid 50 poäng oavsett poängsumman.</li>
-  <li>För att få yatzy skall alla tärningarna visa lika siffror. Yatzy ger alltid 50 poäng oavsett vilken siffra som tärningarna visar.</li>
-  <li>För att få liten stege (stege ibland kallat straight[2]) skall tärningarna visa siffrorna 1, 2, 3, 4 och 5. Detta ger 15 poäng.</li>
-  <li>För att få stor stege skall tärningarna visa siffrorna 2, 3, 4, 5 och 6. Detta ger 20 poäng.</li>
-  <li>För att få kåk skall tre av tärningarna visa ett och samma tal, samtidigt som övriga två ska visa ett och samma tal. Exempelvis 6, 6, 6, 4 och 4.</li>
-  <li>Chans innebär att man ska få så högt tal som möjligt när samtliga tärningsprickar räknas samman.</li>
-  <li>Spelet har 15 villkor att uppfylla. Detta kan maximalt ge 374 poäng.
-  </li>
-  <div id="example-2">
-</div>
-  </ul>
+  <h2>Länk till regler för spelet</h2>
+  <a href="https://sv.wikipedia.org/wiki/Yatzy">Yatzy regler på svenska</a>
   </div class="rules">
   
   </div>`
@@ -687,9 +673,6 @@ const Item = {
     rollingInProgress() {
       return this.$store.state.rollingInProgress;
     },
-    showAnimation() {
-      return this.$store.state.showAnimation;
-    }
   },
   methods: {
     // 1. Kollar först att det finns tärningar eller att den håller på att rulla så att man inte lockar innan man har rollat

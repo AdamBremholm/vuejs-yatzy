@@ -14,17 +14,15 @@
   .container {
     border-radius: 5px;
     display: grid;
-    justify-content: center;
-    align-items: center;
     background-color: white;
     width: 95vw;
-    height: 97vh;
+    height: 90vh;
     overflow-x: hidden;
     overflow-y: hidden;
-    grid-row-gap: 20px;
+    grid-row-gap: 10px;
     grid-column-gap: 5px;
     grid-template-columns: minmax(auto, 97vw);
-    grid-template-rows: 1fr 6fr 1fr 1fr;
+    grid-template-rows: 1fr 8fr 1fr 1fr;
     grid-template-areas:
       "head"
       "sc"
@@ -78,7 +76,6 @@
     background: white;
     border: 1px solid black;
     border-radius: 5px;
-    grid-row-gap: 5px;
     grid-column-gap: 5px;
     grid-template-columns: minmax(100px, 2fr) minmax(15px, 1fr) minmax(100px, 2fr) minmax(
         15px,
@@ -102,16 +99,13 @@
     background-color: #fff;
     color: black;
     border-radius: 5px;
-    padding: 3px;
     grid-template-columns: minmax(100px, 2fr) minmax(15px, 1fr);
-    grid-row-gap: 3px;
     grid-column-gap: 5px;
     grid-template-areas: "fi vl";
   }
   
   .rr {
     grid-area: rr;
-    padding: 3px;
     font-style: italic;
   }
   
@@ -206,7 +200,8 @@
     align-items: center;
     border: 1px solid black;
     border-radius: 5px;
-    padding: 3px;
+    padding: 10px;
+    
   }
   
   .vl {
@@ -216,7 +211,8 @@
     align-items: center;
     border: 1px solid black;
     border-radius: 5px;
-    padding: 3px;
+    padding: 10px;
+    
   }
   .bold {
     font-weight: bold;
@@ -309,8 +305,8 @@
     background-color: #fff;
     color: black;
     border: 1px solid black;
-    padding: 3px;
-    grid-template-rows: 200px;
+    padding: 1px;
+    grid-template-rows: auto;
   }
   
   .roll {
@@ -344,7 +340,7 @@
     border: 1px solid black;
     border-radius: 5px;
     padding: 5px;
-    height: 80%;
+    height: 70%;
     background-color: #fff;
     margin: 3px;
     font-weight: bold;
@@ -358,6 +354,7 @@
     justify-content: center;
     align-items: center;
     background-color: white;
+    border: 1px solid black;
     border-radius: 5px;
     width: 90vw;
     height: 90vh;
@@ -460,7 +457,6 @@
     background: white;
     border: 1px solid black;
     border-radius: 5px;
-    grid-row-gap: 5px;
     grid-column-gap: 5px;
     grid-template-columns: minmax(100px, 2fr) minmax(15px, 1fr) minmax(100px, 2fr) minmax(
         15px,
@@ -486,7 +482,6 @@
     border-radius: 5px;
     padding: 3px;
     grid-template-columns: minmax(100px, 2fr) minmax(15px, 1fr);
-    grid-row-gap: 3px;
     grid-column-gap: 5px;
     grid-template-areas: "fi vl";
   }
@@ -588,7 +583,8 @@
     align-items: center;
     border: 1px solid black;
     border-radius: 5px;
-    padding: 3px;
+    padding: 10px;
+    
   }
   
   .vl {
@@ -598,7 +594,7 @@
     align-items: center;
     border: 1px solid black;
     border-radius: 5px;
-    padding: 3px;
+    padding: 10px;
   }
   .bold {
     font-weight: bold;
@@ -740,14 +736,13 @@
     justify-content: center;
     align-items: center;
     background-color: white;
+    border: 1px solid black;
     border-radius: 5px;
-    width: 90vw;
+    width: 97vw;
     height: 90vh;
     overflow-x: hidden;
     overflow-y: hidden;
-    grid-template-areas: 'v v'
-    'v v'
-    'v v';
+    grid-template-areas: 'v';
   }
 
   .victory {
@@ -776,7 +771,7 @@
   }
 
   @keyframes blink {
-    0%   {background-color:rgba(247, 184, 67, 0.411); }
+    0%   {background-color:rgba(250, 219, 160, 0.411); }
     100%  {background-color:white;}
   }
 
