@@ -363,7 +363,9 @@
     height: 90vh;
     overflow-x: hidden;
     overflow-y: hidden;
-    grid-template-areas: 'v';
+    grid-template-areas: 'v v'
+    'v v'
+    'v v';
   }
 
 
@@ -388,9 +390,6 @@
   .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
     opacity: 0;
   }
-  
-
-
 
 
   
@@ -746,7 +745,9 @@
     height: 90vh;
     overflow-x: hidden;
     overflow-y: hidden;
-    grid-template-areas: 'v';
+    grid-template-areas: 'v v'
+    'v v'
+    'v v';
   }
 
   .victory {
@@ -774,3 +775,11 @@
   
   }
 
+  @keyframes blink {
+    0%   {background-color:red; }
+    100%  {background-color:white;}
+  }
+
+  .blink-infinite {
+    animation: blink 1s infinite alternate;
+  }
