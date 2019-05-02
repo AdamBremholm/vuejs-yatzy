@@ -491,7 +491,7 @@ const Die = {
       let idPlusOne = this.di.id + 1;
       if (!this.di.locked && store.state.rollsLeft === 3)
         return "di " + "di" + idPlusOne;
-      else if (store.state.rollingInProgress) return "di " + "di" + idPlusOne;
+      else if (store.state.rollingInProgress && !this.di.locked) return "di " + "di" + idPlusOne;
       else if (!this.di.locked && this.$store.state.animation === false)
         return "blink-infinite pointer di " + "di" + idPlusOne;
       else if (!this.di.locked && this.$store.state.animation === true)
@@ -700,11 +700,12 @@ const Item = {
     // 3. Lägger in värdet med setScoreAndLock
     // 4. Om det är samma id på det aktiva itemet som det man klickar på vill vi enbart låsa upp fältet och inte lägga in något nytt.
     toggleLockToScoreCard() {
+      store.commit("toggleAnimation");
       if (this.getRollsLeft != 3 && this.rollingInProgress === false) {
         if (this.activeItemExists && this.activeItemId != this.it.id) {
           let index = this.activeItemId - 1;
           store.commit("unlockItem", index);
-          store.commit("toggleAnimation");
+         
         }
         if (this.$store.state.scoreCard[this.it.id - 1].locked === false) {
           let payload = { index: this.it.id - 1, value: this.displayScore };
@@ -712,7 +713,6 @@ const Item = {
         } else if (this.activeItemExists && this.activeItemId === this.it.id) {
           let index = this.activeItemId - 1;
           store.commit("unlockItem", index);
-          store.commit("toggleAnimation");
         }
       }
     }
@@ -793,7 +793,8 @@ const Actions = {
     },
     classObject() {
       console.log("classobject running");
-      if (this.ahOneSlot && this.activeItemExists && this.getRollsLeft === 0) {
+      if (this.ahOneSlot && !this.activeItemExists && this.getRollsLeft === 0) {
+        console.log('1')
         return "info";
       } else if (
         this.ahOneSlot &&
