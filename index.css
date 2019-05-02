@@ -776,10 +776,26 @@
   }
 
   @keyframes blink {
-    0%   {background-color:red; }
+    0%   {background-color:rgba(247, 184, 67, 0.411); }
     100%  {background-color:white;}
   }
 
   .blink-infinite {
     animation: blink 1s infinite alternate;
+  }
+
+  .blink-infinite-one {
+    animation: blink 1s infinite alternate;
+  }
+
+  .blink-infinite-two {
+    animation: blink 1s infinite alternate;
+  }
+
+  .blink-infinite-three {
+    animation: blink 1s infinite alternate;
+  }
+
+  .pointer {
+    cursor: pointer
   }
