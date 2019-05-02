@@ -442,8 +442,8 @@ const HeaderMobile = {
   template: `<div class="header">
   <p class="title">Adams Yatzy App | Totala Poäng: {{totalScore}} </p>
   <p class="nav">
-  <router-link to="/rules">Rules</router-link> |
-  <router-link to="/">Game</router-link>
+  <router-link to="/rules">Hur man spelar</router-link> |
+  <router-link to="/">Till spelet</router-link>
   </p>
       </div>`
 };
@@ -842,8 +842,8 @@ const RulesMobile = {
   template: ` <div>
   <div class="rule-nav">
   <p>
-  <router-link to="/rules">Rules</router-link> |
-  <router-link to="/">Game</router-link>
+  <router-link to="/rules">Hur man spelar</router-link> |
+  <router-link to="/">Till Spelet</router-link>
   </p>
   </div>
   
