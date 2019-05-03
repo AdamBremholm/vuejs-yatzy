@@ -16,7 +16,7 @@
     display: grid;
     background-color: white;
     width: 95vw;
-    height: 90vh;
+    height: 93vh;
     overflow-x: hidden;
     overflow-y: hidden;
     grid-row-gap: 10px;
@@ -200,7 +200,7 @@
     align-items: center;
     border: 1px solid black;
     border-radius: 5px;
-    padding: 10px;
+    padding: 1vh;
     
   }
   
@@ -211,7 +211,8 @@
     align-items: center;
     border: 1px solid black;
     border-radius: 5px;
-    padding: 10px;
+    padding: 1vh;
+   
     
   }
   .bold {
@@ -340,7 +341,7 @@
     border: 1px solid black;
     border-radius: 5px;
     padding: 5px;
-    height: 70%;
+    height: 60%;
     background-color: #fff;
     margin: 3px;
     font-weight: bold;
@@ -360,9 +361,7 @@
     height: 90vh;
     overflow-x: hidden;
     overflow-y: hidden;
-    grid-template-areas: 'v v'
-    'v v'
-    'v v';
+    grid-template-areas: 'v';
   }
 
 

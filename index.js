@@ -792,9 +792,7 @@ const Actions = {
       return this.$store.state.animation;
     },
     classObject() {
-      console.log("classobject running");
       if (this.ahOneSlot && !this.activeItemExists && this.getRollsLeft === 0) {
-        console.log('1')
         return "info";
       } else if (
         this.ahOneSlot &&
