@@ -8,7 +8,7 @@
   }
 
   .body {
-    background-color: blanchedalmond;
+    background-color: rgb(168, 166, 161);
   }
   
   .container {
@@ -314,7 +314,9 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    text-align: center;
     border: 1px solid black;
+    height: 7vh;
     border-radius: 5px;
     padding: 5px;
     font-weight: bold;
@@ -326,7 +328,9 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    text-align: center;
     border: 1px solid black;
+    height: 7vh;
     border-radius: 5px;
     padding: 5px;
     font-weight: bold;
@@ -337,6 +341,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    text-align: center;
     border: 1px solid black;
     border-radius: 5px;
     padding: 5px;
@@ -397,8 +402,8 @@
   .hidden {
     visibility: hidden;
   }
-  body {
-    background-color: blanchedalmond;
+  .body {
+    background-color: rgb(168, 166, 161);
   }
   
   .container {
@@ -693,7 +698,9 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    text-align: center;
     border: 1px solid black;
+    height: 85%;
     border-radius: 5px;
     padding: 5px;
     font-weight: bold;
@@ -705,7 +712,9 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    text-align: center;
     border: 1px solid black;
+    height: 85%;
     border-radius: 5px;
     padding: 5px;
     font-weight: bold;
@@ -716,10 +725,11 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    text-align: center;
     border: 1px solid black;
     border-radius: 5px;
     padding: 5px;
-    height: 80%;
+    height: 85%;
     background-color: #fff;
     margin: 3px;
     font-weight: bold;
