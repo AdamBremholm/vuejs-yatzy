@@ -10,3 +10,4 @@
 //    Samt att fälten ändrar färg när man togglar dom.
 
 För att köra sidan, kör index.html i webbläsaren.
+Den ligger även uppe på https://adambremholm.github.io
