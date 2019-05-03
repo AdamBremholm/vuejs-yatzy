@@ -1,3 +1,15 @@
+//Programflöde:
+//1 : Vue, vuex och router skaps upp. Vue kör detectMobile för att se skärmstorleken och anpassar vilka components som ska visas efter detta.
+//2 : Arrayer med tärningar och scoreCard fylls med data. (se init-metoderna).
+//3 : De olika arrayerna loopas sedan igenom i komponenter där olika värden sätts beroende på om t.ex. tärningarna är låste, fält klickade på eller inte.
+//4 : I scorecardfältet körs metoderna från getters i store som räknar ut möjliga värden på fälten beroende på nuvarande tärningskombinationer.
+//5 : Om man väljer att låsa in fältet läggs det in som ett låst värde i scorecard samt att itemet pushas till played Items.
+//6.: När played Items är full körs victory screen och programmet resettas.
+//7 : Det finns även en komponent för "hur man spelar" som finns med automatiskt i desktop och via klick från router-länk i headern på mobile.
+//8 : Det finns diverse metoder som ska underlätta för spelarn att se vilka fält som är möjliga att klicka på (mouseover pointer och blinkande)
+//    Samt att fälten ändrar färg när man togglar dom.
+
+//Store där datan lagras
 const store = new Vuex.Store({
   state: {
     dice: [],
@@ -15,15 +27,12 @@ const store = new Vuex.Store({
       if (getters.activeItemExists) return state.activeItem[0].id;
       else return -1;
     },
+    //Returnar om det finns något klickat item i scorecardet eller inte
     activeItemExists: state => {
       if (state.activeItem.length > 0) return true;
       else return false;
     },
-    getOpenSlots: state => {
-      return state.scoreCard.filter(item => item.value === 0);
-    },
-
-    //Hämtar enbart ut värdet från tärningarna och returnerar till ny array
+    //Hämtar enbart ut värdet från tärningarna och returnerar till ny array med siffror
     diceValues: state => {
       results = [];
       state.dice.forEach(d => {
@@ -31,6 +40,7 @@ const store = new Vuex.Store({
       });
       return results;
     },
+    //Kollar om 15 items är spelade, isåfall returnera true.
     checkEndGame: state => {
       return state.playedItems.length === 15 ? true : false;
     },
@@ -42,12 +52,32 @@ const store = new Vuex.Store({
       });
       return sortedArray;
     },
+    //Sorterar med lägsta tal först
     sortByAscDice: (state, getters) => {
       let sortedArray = [];
       sortedArray = getters.diceValues.slice().sort(function(a, b) {
         return a - b;
       });
       return sortedArray;
+    },
+    //Gör en aggregate array på hur många antal det finns av varje dice. Måst ha med state även fast den inte används.
+    calculateAggregate: (state, getters) => {
+      let aggregate = [];
+      let current = null;
+      let cnt = 0;
+
+      for (let i = 0; i <= getters.sortByDesDice.length; i++) {
+        if (getters.sortByDesDice[i] != current) {
+          if (cnt > 0) {
+            aggregate.push({ number: current, count: cnt });
+          }
+          current = getters.sortByDesDice[i];
+          cnt = 1;
+        } else {
+          cnt++;
+        }
+      }
+      return aggregate;
     },
     // Hämtar summan av num som man skickar in som inparameter. Om objektet är undefined (dvs kunde inte hittas returneras 0)
     calculateNumbers: (state, getters) => num => {
@@ -59,6 +89,7 @@ const store = new Vuex.Store({
       sum = aggregateObj.number * aggregateObj.count;
       return sum;
     },
+    //Hämtar ut värden från items i scoreCard och returnerar en array med dessa värden
     scoreCardValues: state => {
       let results = [];
       state.scoreCard.forEach(s => {
@@ -66,6 +97,7 @@ const store = new Vuex.Store({
       });
       return results;
     },
+    //Hämtar ut värden för fält 1-6 och returnar det i en array
     scoreCardValuesForNumbers: state => {
       let results = [];
       state.scoreCard.forEach(s => {
@@ -73,8 +105,11 @@ const store = new Vuex.Store({
       });
       return results;
     },
+    //Kollar att scoreCard arrayen inte är tom och summerar alla värden i ScoreCardet
+    //Räknar även med bonusen om den finns
     calculateTotalScore: (state, getters) => {
       let result = 0;
+      result += getters.calculateBonus;
       if (getters.scoreCardValues.length != 0)
         result = getters.scoreCardValues.reduce(
           (partial_sum, a) => partial_sum + a
@@ -82,14 +117,17 @@ const store = new Vuex.Store({
 
       return result;
     },
+    //Summarerar värden för nummer 1-6 i scorecardet.
     calculatePartialScore: (state, getters) => {
       let result = 0;
-      result = getters.scoreCardValuesForNumbers.reduce(
-        (partial_sum, a) => partial_sum + a
-      );
+      if (getters.scoreCardValues.length != 0)
+        result = getters.scoreCardValuesForNumbers.reduce(
+          (partial_sum, a) => partial_sum + a
+        );
 
       return result;
     },
+    // Om partial score överstiger 63, aktivera bonus
     calculateBonus: (state, getters) => {
       if (getters.calculatePartialScore >= 63) return 50;
       else return 0;
@@ -106,6 +144,7 @@ const store = new Vuex.Store({
       }
       return results * 2;
     },
+    // Kollar om det finns 3 lika dana fält genom att loopa igenom den sorterade arrayen lägger gör sedan detta till result och tar *3.
     calculateThreeOfAKind: (state, getters) => {
       var results = 0;
       for (var i = 0; i < getters.sortByDesDice.length - 1; i++) {
@@ -119,6 +158,7 @@ const store = new Vuex.Store({
       }
       return results * 3;
     },
+    // Samma uträkning som ovan
     calculateFourOfAKind: (state, getters) => {
       var results = 0;
       for (var i = 0; i < getters.sortByDesDice.length - 1; i++) {
@@ -129,6 +169,7 @@ const store = new Vuex.Store({
       }
       return results * 4;
     },
+    //KOllar om första är samma som sista tärningen i sorterad array isåfall returna 50p.
     calculateYatzy: (state, getters) => {
       var results = 0;
       if (
@@ -156,7 +197,7 @@ const store = new Vuex.Store({
         return results.reduce((partial_sum, a) => partial_sum + a);
       } else return 0;
     },
-
+    // Använder oss av en aggregate array och ser om det finns 3 av något och två av något annat. Isåfall plussa ihop allt och returnera
     calculateFullHouse: (state, getters) => {
       let aggregate = getters.calculateAggregate;
       let threeOfAKind = 0;
@@ -187,44 +228,14 @@ const store = new Vuex.Store({
       else if (getters.calculateNumbers(1) === 0 && size === "large") return 20;
       else return 0;
     },
+    //Summarar alla tärningar
     calculateChance: (state, getters) => {
       let array = getters.diceValues;
       return array.reduce((partial_sum, a) => partial_sum + a);
-    },
-    //Mockdata that can be used for testing functions that use aggregate
-    mockdataArray: state => {
-      let mockArray = [{ number: 4, count: 3 }, { number: 3, count: 2 }];
-      return mockArray;
-    },
-    //mockarray for testing functions that are using number arrays
-    mockNumberArray: state => {
-      let mockArray = [2, 3, 4, 5, 6];
-      return mockArray;
-    },
-    //Gör en aggregate array på hur många antal det finns av varje dice. Måst ha med state även fast den inte används.
-    calculateAggregate: (state, getters) => {
-      let aggregate = [];
-      let current = null;
-      let cnt = 0;
-
-      for (let i = 0; i <= getters.sortByDesDice.length; i++) {
-        if (getters.sortByDesDice[i] != current) {
-          if (cnt > 0) {
-            aggregate.push({ number: current, count: cnt });
-          }
-          current = getters.sortByDesDice[i];
-          cnt = 1;
-        } else {
-          cnt++;
-        }
-      }
-      return aggregate;
-    },
-    displayPossibleScores: (state, getters) => {
-      for (let index = 0; index < getters.getOpenSlots.length; index++) {}
     }
   },
   mutations: {
+    //För att fylla ScoreCardet. Bonus del-summa och info fält börjar som unlockable: false och selectable false
     initScoreCard(state) {
       let fieldArray = [
         "ettor",
@@ -284,10 +295,11 @@ const store = new Vuex.Store({
         });
       }
     },
-
+    //Metod för att ändra tärningsvärde på specifikt index. Payload skickas som objekt
     changeDieValue(state, payload) {
       state.dice[payload.index].value = payload.value;
     },
+    //Togglar boolean för om nuvarande enhet är liten eller stor skärm.
     toggleIsMobile(state, payload) {
       if (payload === true) state.isMobile = true;
       else state.isMobile = false;
@@ -298,6 +310,7 @@ const store = new Vuex.Store({
       if (state.dice[index].value != 0 && state.rollingInProgress === false)
         state.dice[index].locked = !state.dice[index].locked;
     },
+    //Metod för att låsa in värdet som vi valt.
     setScoreAndLock(state, payload) {
       //Kollar att det inte redan finns ett active item eftersom vi bara ska kunna låsa ett fält per runda.
       if (state.activeItem.length === 0) {
@@ -307,7 +320,7 @@ const store = new Vuex.Store({
         //Tar bort activeitem från scorecardet och lägger in det nya itemet.
       }
     },
-    //kollar att itemet som ska låsas upp matchas med den som ligger i activeItem. Låser upp, nollar och tar bort activeItemen från arrayen
+    //Kollar att itemet som ska låsas upp matchas med den som ligger i activeItem. Låser upp, nollar och tar bort activeItemen från arrayen
     unlockItem(state, payload) {
       if (
         state.activeItem[0].id === state.scoreCard[payload].id &&
@@ -318,29 +331,34 @@ const store = new Vuex.Store({
         state.activeItem.pop();
       }
     },
+    // Fixar så att items inte går att låsa upp när de är inlåsta efter rundan är slut.
     deepLock(state) {
-      //När next klickas i ska det itemet som är locked bli unlockable = false, spara locked item i en array med 1 plats activeItem?
-      //fixar så id motsvarar index i scorecard arrayen
       let id = state.activeItem[0].id - 1;
       state.scoreCard[id].unlockable = false;
     },
+    //Pushar activeItem till playedItem arrayen
     pushToPlayedItems(state) {
       if (state.activeItem.length > 0) {
         state.playedItems.push(state.activeItem[0]);
       }
     },
+    //Tar bort ActiveItem
     popActiveItem(state) {
       state.activeItem.pop();
     },
+    //Återställer antallet slag till 3.
     restoreRollsLeft(state) {
       state.rollsLeft = 3;
     },
+    //Tar bort 1 slag om slag kvar är över 0
     decrementRollsLeft(state) {
       if (state.rollsLeft > 0) state.rollsLeft--;
     },
+    //Togglar animation boolean. (Används för att hålla blinkande animationer i synk.)
     toggleAnimation(state) {
       state.animation = !state.animation;
     },
+    //Återställer tärningar till grundvärde.
     resetDice(state) {
       state.dice.forEach(d => {
         d.value = 0;
@@ -348,7 +366,9 @@ const store = new Vuex.Store({
       });
     }
   },
-  //Lägger i actions pga async. rollingInProgress fixar så att vi inte räknar ut medan tärningarna rullas.  Kör 7 rolls sen klar och kör decrementRollsLeft
+  //Metod för när man klickar på slå tärningarna knappen.
+  //Använder sig av frames för att visa när tärningarna rullas.
+  //rollingInProgress fixar så att vi inte visar uträkning medan tärningarna rullas. Kör 7 rolls sen klar och kör decrementRollsLeft
   actions: {
     rollDice({ commit, state, getters }) {
       if (state.rollsLeft > 0) {
@@ -380,12 +400,12 @@ const store = new Vuex.Store({
         commit("decrementRollsLeft");
       }
     },
-
+    // Metod som körs när man väljer att gå vidare (låsa in fältet).
+    // Vad de olika metoderna gör framgår av namnet men finns ytterligare förklarat ovan dem.
+    // Om checkEndGame kritierierna är uppfyllda, kör victoryScreenen
     nextRound({ state, commit, getters, dispatch }) {
       if (getters.activeItemExists) {
-        //Nollar tärningarna så man inte kan klicka på något
         commit("resetDice");
-        //Fixar deeplock på det aktiva itemet i scorecardet och nollställer activeItemArrayen set available rolls to 3 again
         commit("deepLock");
         commit("pushToPlayedItems");
         commit("popActiveItem");
@@ -395,13 +415,13 @@ const store = new Vuex.Store({
         }
       }
     },
-
+    //Resettar spelet efter att victoryscreen har presenterats. Fyller upp scorecardet med nya värden.
     resetGame({ state, commit }) {
       state.scoreCard.splice(0, state.scoreCard.length);
       state.playedItems.splice(0, state.playedItems.length);
       commit("initScoreCard");
     },
-
+    // Visar victory screen i 4,5s.
     presentVictoryScreen({ commit, state, getters, dispatch }) {
       state.victoryScreen = true;
       setTimeout(() => {
@@ -411,7 +431,7 @@ const store = new Vuex.Store({
     }
   }
 });
-
+// Component för Headern
 const Header = {
   computed: {
     scoreCard() {
@@ -424,7 +444,7 @@ const Header = {
   template: `<div class="header">Adams Yatzy App | Totala Poäng: {{totalScore}} 
       </div>`
 };
-
+// Component för Headern på mobile med Vue router länkar
 const HeaderMobile = {
   computed: {
     scoreCard() {
@@ -442,7 +462,7 @@ const HeaderMobile = {
   </p>
       </div>`
 };
-
+// Component för Victory-Screenen
 const Victory = {
   computed: {
     totalScore() {
@@ -455,10 +475,11 @@ const Victory = {
 Yatzy Royale!<br>
 Dina sammanlagda poäng blev:  {{totalScore}} !<br>
 Spelet kommer att startas om inom kort...
-      </div class="victory">
+      </div>
       </div>`
 };
 
+// Component som visar regler (kallas för sidebar men är inte det i Mobil)
 const Sidebar = {
   template: `<div class="sidebar"> 
   <div class="rules">
@@ -479,7 +500,7 @@ const Sidebar = {
   </div>`
 };
 
-// Skriver ut varje tärning i tärningsfältet, ska även hålla design för tärningarna
+// Skriver ut varje tärning i tärningsfältet, Håller även ordning på utseende för tärningarna
 const Die = {
   props: ["di"],
   store,
@@ -487,17 +508,22 @@ const Die = {
     id() {
       return this.di.id;
     },
+    //Väljer vilken klass som ska visas beroende på egenskaper som tärningarna har. Om tärningarna ska vara möjliga att klicka på ska
+    // de vara blinkande och ha en mouse pointer över sig. Två olika animationsklasser för att kunna ha dom i synk när man interagerar med sidan.
+    // Om tärningen är låst, returnera orange background. di elemten är till för att varje tärning ska få rätt plats i gridden.
     classObject() {
       let idPlusOne = this.di.id + 1;
       if (!this.di.locked && store.state.rollsLeft === 3)
         return "di " + "di" + idPlusOne;
-      else if (store.state.rollingInProgress && !this.di.locked) return "di " + "di" + idPlusOne;
+      else if (store.state.rollingInProgress && !this.di.locked)
+        return "di " + "di" + idPlusOne;
       else if (!this.di.locked && this.$store.state.animation === false)
         return "blink-infinite pointer di " + "di" + idPlusOne;
       else if (!this.di.locked && this.$store.state.animation === true)
         return "blink-infinite-two pointer di " + "di" + idPlusOne;
       else return "di orange-background pointer " + "di" + idPlusOne;
     },
+    // Metod för att returnera html unicode för tärningar.
     getDieUnicode() {
       if (this.di.value === 1) return "&#9856;";
       else if (this.di.value === 2) return "&#9857;";
@@ -508,6 +534,7 @@ const Die = {
       else return "";
     }
   },
+  //togglar lås tärning och ressetar animationen
   methods: {
     toggleLockDice(id) {
       if (this.di.locked === true) {
@@ -522,7 +549,7 @@ const Die = {
       `
 };
 
-//Ska skriva ut de rullade tärningarna längst ner i appen
+//Hållare för tärningarna som loopar igenom alla tärningarna
 const DiceHolder = {
   computed: {
     dice() {
@@ -705,7 +732,6 @@ const Item = {
         if (this.activeItemExists && this.activeItemId != this.it.id) {
           let index = this.activeItemId - 1;
           store.commit("unlockItem", index);
-         
         }
         if (this.$store.state.scoreCard[this.it.id - 1].locked === false) {
           let payload = { index: this.it.id - 1, value: this.displayScore };
@@ -753,13 +779,10 @@ Vue.component("scoreCard", {
   }
 });
 
-// Håller actionknappsfältet med roll knapp och hur många rolls det kvarfunktion
+// Håller actionknappsfältet med roll knapp, hur många rolls det finns kvar samt lås in kombinationskanpp.
 const Actions = {
   store,
   computed: {
-    getOpenSlots() {
-      return this.$store.getters.getOpenSlots;
-    },
     getRollsLeft() {
       return this.$store.state.rollsLeft;
     },
@@ -767,6 +790,7 @@ const Actions = {
       if (this.$store.state.activeItem.length > 0) return true;
       else return false;
     },
+    // Om det ska finnas en eller två slots i gridden för hållaren
     ahOneSlot() {
       if (
         !this.activeItemExists ||
@@ -791,54 +815,30 @@ const Actions = {
     animation() {
       return this.$store.state.animation;
     },
+
+    //Metod för att bestämma klass beroende på objektets egenskaper.
+    // Om Sista rundan, gör ett enkelt objekt som inte går att klicka på
+    // Om bara ett slots, gör blinkande och mouse pointer över
+    // Om tärningarna rullar, ingen blink ingen pointer.
     classObject() {
       if (this.ahOneSlot && !this.activeItemExists && this.getRollsLeft === 0) {
         return "info";
       } else if (
         this.ahOneSlot &&
-        this.getRollsLeft === 3 &&
         this.animation === false
       ) {
-        return "info blink-infinite pointer";
+        return "info blink-infinite pointer"
       } else if (
         this.ahOneSlot &&
-        this.getRollsLeft === 3 &&
         this.animation === true
       ) {
-        return "info blink-infinite-two pointer";
+        return "info blink-infinite-two pointer"
       } else if (
         this.ahOneSlot &&
-        this.getRollsLeft > 0 &&
         this.rollingInProgress
       ) {
-        return "info pointer";
-      } else if (
-        this.ahOneSlot &&
-        this.getRollsLeft > 0 &&
-        this.animation === false
-      ) {
-        return "info blink-infinite pointer";
-      } else if (
-        this.ahOneSlot &&
-        this.getRollsLeft > 0 &&
-        this.animation === true
-      ) {
-        return "info blink-infinite-two pointer";
-      } else if (
-        this.ahOneSlot &&
-        this.getRollsLeft === 0 &&
-        this.activeItemExists &&
-        this.animation === false
-      ) {
-        return "info blink-infinite pointer";
-      } else if (
-        this.ahOneSlot &&
-        this.getRollsLeft === 0 &&
-        this.activeItemExists &&
-        this.animation === true
-      ) {
-        return "info blink-infinite-two pointer";
-      } else return "";
+        return "info"
+      } else return ""
     }
   },
 
@@ -846,19 +846,11 @@ const Actions = {
     rollDice() {
       store.dispatch("rollDice");
     },
-    //togglar till true i två sekunder.
-    logName() {
-      console.log("you pressed enter");
-    },
-    decrementRollsLeft() {
-      store.commit("decrementRollsLeft");
-    },
     nextRound() {
       this.$store.dispatch("nextRound");
     }
   },
-  template: `
-  <div v-bind:class="{'ah-one-slot black-border' : ahOneSlot, 'action-holder' : ahTwoSlot}"> 
+  template: `<div v-bind:class="{'ah-one-slot black-border' : ahOneSlot, 'action-holder' : ahTwoSlot}"> 
             <div v-if="!activeItemExists && getRollsLeft===0" v-bind:class="classObject"> Välj kombination innan du fortsätter!</div>
             <div v-else-if="ahOneSlot && getRollsLeft===3" v-bind:class="classObject" v-on:click="rollDice">Slå tärningarna, {{getRollsLeft}} kast kvar</div>
             <div v-else-if="ahOneSlot && getRollsLeft>0 && rollingInProgress" v-bind:class="classObject" v-on:click="rollDice">Slå tärningarna här eller välj kombination ovan, {{getRollsLeft}} kast kvar</div>
@@ -873,6 +865,7 @@ const Actions = {
    </div>`
 };
 
+//Hållare för Regler till mobilen med routing-länkar och sidebar
 const RulesMobile = {
   template: ` <div>
   <div class="rule-nav">
@@ -891,6 +884,7 @@ const RulesMobile = {
   }
 };
 
+//Huvud Container för programmet. Håller alla componentes
 const Container = {
   computed: {
     isMobile() {
@@ -899,17 +893,14 @@ const Container = {
     victoryScreen() {
       return this.$store.state.victoryScreen;
     },
-    classObject() {
-      if (this.victoryScreen) return "victory-container";
-      else return "container";
-    }
   },
   methods: {},
 
+  //Visar vicoryscreen med en infadning och victoryScreen är true, annars visa den vanliga sidan. 
   template: `
   <div>
   <transition name="fade">
-  <section v-if="!victoryScreen" v-bind:class="classObject">
+  <section v-if="!victoryScreen" class="container">
 
   <header-holder v-if="!isMobile && !victoryScreen">Yatzy, Totals. </header-holder>
                 <header-holder-mobile v-else-if="isMobile && !victoryScreen">Yatzy, Totals. </header-holder-mobile>
@@ -920,7 +911,7 @@ const Container = {
                 </section>
                 </transition>
                 <transition name="fade">
-  <victory-holder v-if="victoryScreen" v-bind:class="classObject">></victory-holder>
+  <victory-holder v-if="victoryScreen" class="victory-container">></victory-holder>
   </transition>
                
                 </div>
@@ -957,7 +948,7 @@ const app = new Vue({
       return this.$store.state.isMobile;
     }
   },
-  // Som media query men för vue komponenter.
+  // Som media query men för vue komponenter. KOllar om sidan är mindre än 870 isåfall toggal sidan till mobil, och vise versa.
   methods: {
     detectMobile() {
       if (window.innerWidth <= 870) {
@@ -966,6 +957,7 @@ const app = new Vue({
         store.commit("toggleIsMobile", false);
       }
     },
+    //Eventlistener för tangenbort. 
     startKeyEventListener() {
       var current = this;
       window.addEventListener("keyup", function(event) {
@@ -989,7 +981,7 @@ const app = new Vue({
         }
       });
     },
-
+    //Eventlister för om man resizar till mindre eller större skärm och anpassar vad som visas i vue efter detta.
     startResizeListener() {
       var current = this;
       window.addEventListener("resize", () => {
@@ -1019,6 +1011,7 @@ const app = new Vue({
     this.detectMobile();
     this.startResizeListener();
   },
+  //Kör mobil detection innan vue skapas.
   beforeCreated() {
     this.detectMobile();
   },
